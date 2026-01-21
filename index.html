@@ -1,0 +1,1504 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>AGENDA PRIVADA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="https://res.cloudinary.com/dqqeavica/image/upload/v1759697569/Jhonny_tvexdy.png">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    :root{
+      --primary:#007BFF;
+      --primary-2:#0056b3;
+      --ok:#16a34a;
+      --error:#dc2626;
+      --scrim:rgba(0,0,0,.35);
+      --cal-blue-bg:#dbeafe;
+      --cal-blue-border:#1d4ed8;
+      --cal-green-bg:#bbf7d0;
+      --cal-green-border:#166534;
+    }
+    html,body{
+      margin:0; padding:0; height:100%; width:100%;
+      overflow-x:hidden;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:#111;
+      background: url('https://res.cloudinary.com/dqqeavica/image/upload/v1753538930/FONDO_JHONNY_sugwsj.png') center/cover fixed no-repeat;
+    }
+    .container{ max-width: 1000px; margin: 0 auto; padding: 16px; }
+
+    .view{
+      display:none;
+      opacity:0;
+      transform: translateY(8px);
+      transition: opacity .25s ease, transform .25s ease;
+      box-sizing:border-box;
+      padding:16px;
+    }
+    .view.active{
+      display:block;
+      opacity:1;
+      transform: translateY(0);
+    }
+
+    .card{
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(3px);
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 8px 18px rgba(0,0,0,.15);
+      max-width: 900px;
+      margin: 16px auto;
+      padding: 16px 16px 10px 16px;
+    }
+    h1,h2,h3{ margin: 8px 0 12px; text-align:center; }
+    p.helper{ color:#666; font-size:.95rem; text-align:center; margin:8px 0 16px; }
+    label{ display:block; font-weight:700; margin: 10px 0 6px; color:var(--primary); }
+    input, select, textarea, button{
+      width:100%; padding:12px; box-sizing:border-box;
+      border:1.5px solid #ccc; border-radius:8px; background:#fff;
+      outline:none; transition: border-color .2s ease, transform .08s ease;
+      font-size:16px;
+    }
+    input:focus, select:focus, textarea:focus{ border-color:var(--primary); }
+    button{
+      cursor:pointer; border:2px solid var(--primary);
+      background:#fff; color:#000; font-weight:700;
+    }
+    button:hover{ background:var(--primary-2); color:#fff; border-color:var(--primary-2); }
+    .btn-primary{ background:var(--primary); color:#fff; }
+    .btn-row{ display:flex; gap:12px; }
+    .btn-row > *{ flex:1; }
+    .muted{ color:#666; font-size:.9rem; }
+    .center{ text-align:center; }
+    .image-center{ display:flex; justify-content:center; align-items:center; }
+    .brand{ width:210px; border-radius:8px; display:block; margin:12px auto 4px; }
+    .chip{
+      padding:8px 12px; border-radius:999px; border:2px solid var(--primary);
+      background:#fff; font-weight:700; color:#000;
+    }
+    .danger{ background:#e11; border-color:#e11; color:#fff; }
+    .narrow{ max-width: 520px; margin: 0 auto; }
+    .spaced{ margin-top:12px; }
+
+    .pwd-wrapper{
+      position:relative;
+      width:100%;
+    }
+    .pwd-wrapper input#doc-login{
+      display:block;
+      width:100%;
+      padding-right:40px;
+    }
+    .toggle-cedula{
+      position:absolute;
+      top:50%;
+      right:10px;
+      transform:translateY(-50%);
+      background:transparent !important;
+      border:0 !important;
+      padding:0;
+      width:28px;
+      height:28px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      border-radius:6px;
+    }
+    .toggle-cedula:hover{
+      background:rgba(0,0,0,.06);
+    }
+    .toggle-cedula:active{
+      transform:translateY(-50%) scale(.92);
+    }
+    .toggle-cedula:focus-visible{
+      outline:none;
+      box-shadow:0 0 0 3px rgba(6,64,43,.35);
+    }
+    .toggle-cedula img{
+      width:22px;
+      height:22px;
+      display:block;
+      pointer-events:none;
+    }
+
+    .loader{
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      background:rgba(0,0,0,.35);
+      z-index:9999; backdrop-filter: blur(2px);
+      opacity:1; transition: opacity .12s ease;
+      will-change: opacity;
+    }
+    .loader.hidden{
+      display:flex !important;
+      opacity:0; pointer-events:none;
+    }
+    .spinner-ios{
+      position:relative; width:64px; height:64px;
+    }
+    .spinner-ios i{
+      position:absolute; left:50%; top:50%;
+      width:6px; height:18px; margin:-9px 0 0 -3px;
+      background:#fff; border-radius:3px;
+      opacity:.2;
+      animation:iosFade 1.2s linear infinite;
+      transform-origin: center center;
+    }
+    @keyframes iosFade{
+      0%, 39%, 100% { opacity:.2; }
+      40% { opacity:1; }
+    }
+    .spinner-ios i:nth-child(1)  { transform: rotate(  0deg) translateY(-24px); animation-delay:-1.1s; }
+    .spinner-ios i:nth-child(2)  { transform: rotate( 30deg) translateY(-24px); animation-delay:-1.0s; }
+    .spinner-ios i:nth-child(3)  { transform: rotate( 60deg) translateY(-24px); animation-delay:-0.9s; }
+    .spinner-ios i:nth-child(4)  { transform: rotate( 90deg) translateY(-24px); animation-delay:-0.8s; }
+    .spinner-ios i:nth-child(5)  { transform: rotate(120deg) translateY(-24px); animation-delay:-0.7s; }
+    .spinner-ios i:nth-child(6)  { transform: rotate(150deg) translateY(-24px); animation-delay:-0.6s; }
+    .spinner-ios i:nth-child(7)  { transform: rotate(180deg) translateY(-24px); animation-delay:-0.5s; }
+    .spinner-ios i:nth-child(8)  { transform: rotate(210deg) translateY(-24px); animation-delay:-0.4s; }
+    .spinner-ios i:nth-child(9)  { transform: rotate(240deg) translateY(-24px); animation-delay:-0.3s; }
+    .spinner-ios i:nth-child(10) { transform: rotate(270deg) translateY(-24px); animation-delay:-0.2s; }
+    .spinner-ios i:nth-child(11) { transform: rotate(300deg) translateY(-24px); animation-delay:-0.1s; }
+    .spinner-ios i:nth-child(12) { transform: rotate(330deg) translateY(-24px); animation-delay: 0s; }
+
+    .hidden{ display:none !important; }
+
+    .cal-wrapper{
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .cal-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+    .cal-title{
+      font-weight:800;
+      font-size:1.1rem;
+      color:var(--primary);
+    }
+    .cal-nav-group{
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .cal-pill-btn{
+      border-radius:999px;
+      padding:8px 14px;
+      border:2px solid var(--primary);
+      background:#fff;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .cal-pill-btn.active{
+      background:var(--primary);
+      color:#fff;
+      border-color:var(--primary-2);
+    }
+    .cal-filter-wrap{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .cal-filter-input{
+      border-radius:999px;
+      padding:8px 12px;
+      border:1.5px solid #ccc;
+      min-width:220px;
+    }
+
+    .cal-grid{
+      margin-top:10px;
+      border-radius:16px;
+      background:rgba(255,255,255,.8);
+      border:2px solid #ddd;
+      overflow:hidden;
+    }
+    .cal-month-grid{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      border-top:1px solid #eee;
+    }
+    .cal-weekdays{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      background:#f7fafc;
+      border-bottom:1px solid #eee;
+    }
+    .cal-weekday{
+      padding:6px 4px;
+      text-align:center;
+      font-size:.8rem;
+      font-weight:700;
+      color:#555;
+    }
+    .cal-day-cell{
+      min-height:86px;
+      border-right:1px solid #f1f1f1;
+      border-bottom:1px solid #f1f1f1;
+      padding:4px;
+      box-sizing:border-box;
+      position:relative;
+      background:#fff;
+    }
+    .cal-day-cell.other-month{
+      background:#f9fafb;
+    }
+    .cal-day-number{
+      font-size:.78rem;
+      font-weight:700;
+      color:#111;
+    }
+    .cal-day-number.today{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:22px;
+      height:22px;
+      border-radius:999px;
+      background:var(--primary);
+      color:#fff;
+    }
+
+    .cal-event-chip{
+      margin-top:2px;
+      padding:2px 4px;
+      border-radius:8px;
+      font-size:clamp(.36rem, 0.7vw, .58rem);
+      line-height:1.1;
+      cursor:pointer;
+      color:#111;
+      box-shadow:0 1px 3px rgba(0,0,0,.16);
+      border:1px solid var(--cal-blue-border);
+      background:var(--cal-blue-bg);
+    }
+    .cal-event-chip.today-event{
+      border-color:var(--cal-green-border);
+      background:var(--cal-green-bg);
+    }
+    .cal-evt-title{
+      font-weight:800;
+      display:block;
+      font-size:clamp(.38rem, 0.8vw, .7rem);
+    }
+    .cal-evt-time{
+      font-weight:600;
+      font-size:clamp(.34rem, 0.7vw, .62rem);
+    }
+
+    .cal-day-header-row,
+    .cal-week-header-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:6px 10px;
+      background:#f7fafc;
+      border-bottom:1px solid #eee;
+      font-size:.85rem;
+      font-weight:700;
+    }
+    .cal-day-body,
+    .cal-week-body{
+      padding:8px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .cal-year-grid{
+      border-top:1px solid #eee;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+      gap:10px;
+      padding:10px;
+    }
+    .cal-year-month{
+      border-radius:12px;
+      background:#f9fafb;
+      padding:8px;
+      box-sizing:border-box;
+    }
+    .cal-year-month h4{
+      margin:0 0 4px;
+      font-size:.8rem;
+      text-align:center;
+      color:#111;
+    }
+    .cal-year-month table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:.7rem;
+      text-align:center;
+    }
+    .cal-year-month th{
+      font-weight:700;
+      color:#666;
+      padding:2px 0;
+    }
+    .cal-year-month td{
+      padding:2px 0;
+      color:#111;
+    }
+    .cal-year-dot{
+      width:6px;
+      height:6px;
+      border-radius:999px;
+      display:inline-block;
+      margin-left:2px;
+      background:#22c55e;
+    }
+
+    .cal-footer-actions{
+      margin-top:14px;
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    @media (max-width: 700px){
+      .btn-row{ flex-direction:column; }
+    }
+  </style>
+</head>
+<body>
+<div id="loader" class="loader hidden" aria-live="polite" aria-busy="true">
+  <div class="spinner-ios" role="status" aria-label="Cargando">
+    <i></i><i></i><i></i><i></i><i></i><i></i>
+    <i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
+</div>
+
+<div class="container">
+
+  <section id="view-login" class="view active">
+    <div class="card narrow">
+      <h1 style="color:var(--primary); text-shadow: 0 2px 2px #031732;">AGENDA PRIVADA</h1>
+      <p class="helper"><b>Acceso exclusivo para Líderes Autorizados.</b></p>
+
+      <label>Documento:</label>
+      <div class="pwd-wrapper">
+        <input
+          id="doc-login"
+          type="password"
+          inputmode="numeric"
+          placeholder="Sin puntos ni espacios"
+        />
+        <button
+          type="button"
+          id="toggle-doc-login"
+          aria-label="Mostrar documento"
+          class="toggle-cedula"
+        >
+          <img
+            src="https://res.cloudinary.com/dqqeavica/image/upload/v1764084782/Mostrar_yymceh.png"
+            alt="Mostrar"
+          >
+        </button>
+      </div>
+
+      <div class="btn-row spaced">
+        <button class="btn-primary" id="btn-login">Iniciar Sesión</button>
+      </div>
+
+      <img class="brand" alt="Brand" src="https://res.cloudinary.com/dqqeavica/image/upload/v1753538919/BANNER_JHONNY_e0yw7m.png" />
+      <p class="center muted">Copyright © <a href="https://wa.me/573103230712" target="_blank"><b>Oscar Polanía</b></a></p>
+    </div>
+  </section>
+
+  <section id="view-agenda" class="view">
+    <div class="card">
+      <div class="btn-row" style="margin-bottom:12px;">
+        <button class="chip" id="btn-logout">Cerrar Sesión</button>
+      </div>
+
+      <div class="narrow" style="margin-bottom:12px;">
+        <p class="center muted" style="margin:4px 0 2px;"><b>Líder:</b> <span id="u-nombre"></span></p>
+        <p class="center muted" style="margin:2px 0;"><b>Contacto:</b> <span id="u-tel"></span></p>
+      </div>
+
+      <div class="cal-wrapper">
+        <h2 style="color:var(--primary)">NUESTRA AGENDA</h2>
+
+        <div class="cal-header">
+          <div>
+            <div class="cal-title" id="cal-title-text">Mes actual</div>
+            <p class="muted" style="margin:2px 0 0;">Vista interactiva de eventos programados</p>
+          </div>
+          <div class="cal-nav-group">
+            <button id="cal-btn-today" class="cal-pill-btn">Hoy</button>
+            <button id="cal-prev" class="cal-pill-btn" aria-label="Anterior">‹</button>
+            <button id="cal-next" class="cal-pill-btn" aria-label="Siguiente">›</button>
+          </div>
+          <div class="cal-filter-wrap">
+            <button id="cal-filter-toggle" class="cal-pill-btn">Filtrar</button>
+            <input id="cal-filter-input" class="cal-filter-input" type="text" placeholder="Filtrar por evento o lugar" style="display:none;">
+          </div>
+          <div class="cal-nav-group">
+            <button id="cal-view-day" class="cal-pill-btn">Día</button>
+            <button id="cal-view-week" class="cal-pill-btn">Semana</button>
+            <button id="cal-view-month" class="cal-pill-btn active">Mes</button>
+            <button id="cal-view-year" class="cal-pill-btn">Año</button>
+          </div>
+        </div>
+
+        <div id="cal-container" class="cal-grid">
+          <div style="padding:14px; text-align:center; font-size:.9rem;" class="muted">
+            Cargando agenda…
+          </div>
+        </div>
+
+        <div class="cal-footer-actions">
+          <button id="cal-btn-new" class="btn-primary">Ingresar Evento</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-evento" class="view">
+    <div class="card narrow">
+      <h2 id="evento-title" style="color:var(--primary)">REGISTRAR EVENTO</h2>
+      <div class="narrow">
+
+        <label for="nombreEvento">Nombre del Evento</label>
+        <textarea id="nombreEvento" rows="2" placeholder="Título descriptivo del evento"></textarea>
+
+        <label>Fecha del Evento</label>
+        <input
+          id="fechaEvento"
+          type="text"
+          placeholder="dd/mm/aaaa"
+          readonly
+        />
+
+        <label for="horaInicio">Hora de Inicio</label>
+        <input id="horaInicio" type="time">
+
+        <label for="horaTerminacion">Hora de Terminación</label>
+        <input id="horaTerminacion" type="time">
+
+        <label for="lugarEvento">Lugar</label>
+        <select id="lugarEvento">
+          <option value="" disabled selected>Selecciona el Lugar</option>
+        </select>
+
+        <label for="liderNombre">Líder</label>
+        <input id="liderNombre" type="text" readonly>
+
+        <label for="contacto">Contacto</label>
+        <input id="contacto" type="text" readonly>
+
+        <input id="evento-codigo" type="hidden">
+      </div>
+
+      <div class="btn-row spaced" style="margin-top:14px;">
+        <button id="evento-guardar" class="btn-primary">Guardar Evento</button>
+        <button id="evento-volver" class="danger">Regresar</button>
+      </div>
+    </div>
+
+    <div id="eventoFechaModal" class="picker-modal-cal" aria-hidden="true" style="position:fixed; inset:0; display:none; align-items:flex-start; justify-content:center; padding-top:32px; background:rgba(0,0,0,.5); z-index:9999;">
+      <div class="picker-box-cal" style="width:90%; max-width:520px; background:#fff; border-radius:8px; padding:16px; box-shadow:0 8px 18px rgba(0,0,0,.18);">
+        <h3 style="margin:0 0 8px 0;">Selecciona la Fecha del Evento</h3>
+        <div class="picker-grid-cal" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:12px 0;">
+          <div>
+            <small>Día</small>
+            <select id="evtDia" size="10"></select>
+          </div>
+          <div>
+            <small>Mes</small>
+            <select id="evtMes" size="12"></select>
+          </div>
+          <div>
+            <small>Año</small>
+            <select id="evtAnio" size="10"></select>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+          <button type="button" class="btn" id="evtFechaCancelar">Cancelar</button>
+          <button type="button" class="btn-primary" id="evtFechaOk">Ok</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  const API_BASE = 'https://script.google.com/macros/s/AKfycbzYEzUpAoXZKgkCut4HI2CgcHiwkgldjx23RXucAGx-BlTKXreJO_ZQ2MCyr8aqnOl0/exec';
+
+  const SOUNDS = {
+    question: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011577/Pay_fail_ls2aif.mp3',
+    info: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011578/Default_notification_pkp4wr.mp3',
+    success: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011577/Pay_success_t5aawh.mp3',
+    error: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011578/Low_battery_d5qua1.mp3',
+    warning: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011578/Low_battery_d5qua1.mp3',
+    resumen: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011577/Charging_clkgcd.mp3',
+    login: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011577/Siri_star_g1owy4.mp3',
+    logout: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011577/Siri_End_kelv02.mp3',
+    menu: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011577/Namedrop_Popup_ale2zy.mp3',
+    back: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011578/Keyboard_Enter_b9k2dc.mp3'
+  };
+  function playSoundOnce(url){
+    try{
+      const a = new Audio(url);
+      a.preload = 'auto';
+      a.play().catch(()=>{});
+    }catch(e){}
+  }
+  if (window.Swal && typeof Swal.fire === 'function'){
+    const __fire = Swal.fire.bind(Swal);
+    Swal.fire = function(options = {}, ...rest){
+      try{
+        if (options.soundTag === 'resumen'){
+          playSoundOnce(SOUNDS.resumen);
+        } else {
+          const icon = options.icon || options.type;
+          if (icon && SOUNDS[icon]) playSoundOnce(SOUNDS[icon]);
+        }
+      }catch(e){}
+      return __fire(options, ...rest);
+    }
+  }
+
+  const loader = document.getElementById('loader');
+  let loadingCount = 0;
+  let loaderTimer = null;
+  function startLoading(){
+    loadingCount++;
+    if (loadingCount === 1){
+      loaderTimer = setTimeout(()=>{
+        loader.classList.remove('hidden');
+        loaderTimer = null;
+      }, 120);
+    }
+  }
+  function stopLoading(){
+    if (loadingCount === 0) return;
+    loadingCount--;
+    if (loadingCount === 0){
+      if (loaderTimer){
+        clearTimeout(loaderTimer);
+        loaderTimer = null;
+      }
+      loader.classList.add('hidden');
+    }
+  }
+
+  async function apiGet(action, params = {}){
+    startLoading();
+    try{
+      const url = new URL(API_BASE);
+      url.search = new URLSearchParams({ action, ...params }).toString();
+      const r = await fetch(url.toString(), { method: 'GET' });
+      const j = await r.json();
+      if(!j.ok) throw new Error(j.error || 'Error');
+      return j.data;
+    } finally { stopLoading(); }
+  }
+  async function apiPost(action, body = {}){
+    startLoading();
+    try{
+      const url = API_BASE + '?action=' + encodeURIComponent(action);
+      const r = await fetch(url, {
+        method:'POST',
+        headers: { 'Content-Type':'text/plain;charset=utf-8' },
+        body: JSON.stringify(body)
+      });
+      const j = await r.json();
+      if(!j.ok) throw new Error(j.error || 'Error');
+      return j.data;
+    } finally { stopLoading(); }
+  }
+
+  let currentLeader = null;
+
+  function showView(id){
+    for(const el of document.querySelectorAll('.view')) el.classList.remove('active');
+    const v = document.getElementById(id);
+    if(v) v.classList.add('active');
+    if(v && typeof v.scrollIntoView === 'function'){
+      v.scrollIntoView({ behavior:'smooth', block:'start' });
+    }else{
+      window.scrollTo({ top:0, behavior:'smooth' });
+    }
+  }
+
+  (function(){
+    const toggleBtn = document.getElementById('toggle-doc-login');
+    const input = document.getElementById('doc-login');
+    if(!toggleBtn || !input) return;
+    toggleBtn.addEventListener('click', ()=>{
+      const oculto = input.type === 'password';
+      input.type = oculto ? 'tel' : 'password';
+      const nuevoIcono = oculto
+        ? 'https://res.cloudinary.com/dqqeavica/image/upload/v1764084782/Ocultar_lgdxpd.png'
+        : 'https://res.cloudinary.com/dqqeavica/image/upload/v1764084782/Mostrar_yymceh.png';
+      const accion = oculto ? 'Ocultar' : 'Mostrar';
+      toggleBtn.setAttribute('aria-label', accion + ' documento');
+      toggleBtn.innerHTML = '<img src="'+nuevoIcono+'" alt="'+accion+'">';
+    });
+  })();
+
+  const autorizados = [
+    '1108456583','1003523357','1070621556','93435295','1108454481','1108453352',
+    '65820648','1108454823','38210170','39584197','65820550','65820373','1108454657','88199574'
+  ];
+
+  document.getElementById('btn-login').addEventListener('click', async () => {
+    const documento = (document.getElementById('doc-login').value || '').trim();
+    if (documento === '') {
+      Swal.fire({ icon:'question', title:'¿Deseas comenzar?', text:'Ingresa un Documento para validar.' });
+      return;
+    }
+    if (!/^\d{6,10}$/.test(documento)) {
+      Swal.fire({ icon:'warning', title:'Documento inválido', text:'El Documento debe tener de 6 a 10 dígitos SIN PUNTOS NI ESPACIOS' });
+      return;
+    }
+    if (autorizados.indexOf(documento) === -1){
+      Swal.fire({ icon:'info', title:'No tienes acceso' });
+      return;
+    }
+    try{
+      const res = await apiGet('loginLiderAgendaPrivada', { documento });
+      if(!res || !res.existe){
+        Swal.fire({ icon:'info', title:'No tienes acceso' });
+        return;
+      }
+      currentLeader = {
+        documento: documento,
+        nombre: res.nombre || '',
+        telefono: res.telefono || ''
+      };
+      document.getElementById('u-nombre').textContent = currentLeader.nombre || '';
+      document.getElementById('u-tel').textContent = currentLeader.telefono || '';
+      playSoundOnce(SOUNDS.login);
+      await calLoadEvents();
+      fillLugarChoices();
+      showView('view-agenda');
+      calRender();
+    }catch(e){
+      Swal.fire({ icon:'error', title:'Error', text:e.message });
+    }
+  });
+
+  document.getElementById('btn-logout').addEventListener('click', ()=>{
+    playSoundOnce(SOUNDS.logout);
+    currentLeader = null;
+    document.getElementById('doc-login').value = '';
+    showView('view-login');
+  });
+
+  let choicesLugar = null;
+  function fillLugarChoices(){
+    const sel = document.getElementById('lugarEvento');
+    if(!sel) return;
+    sel.innerHTML = '';
+    const baseOptions = [
+      'ACAPULCO I','ACAPULCO II','AGUAMARINA','ALCALA I','ALFONSO LOPEZ','ALTAGRACIA I','ALTAGRACIA II','ALTAGRACIA IV',
+      'APROVITEF','ARAGON I','ARAGON II','ARAGON III','ARAGON IV','ARBOLEDA I','ARBOLEDA II','BALCONES DE ALEJANDRIA',
+      'BILBAO','CALA I','CANALES','CANCUN','CAMALA','CASA DEL SOL I','CASA DEL SOL II','CENTRO','COLEGIO I','COLEGIO II',
+      'COLEGIO III','DUBAI','EL JORDAN','EL PORTAL DEL RUBI','GAITAN','HANGARES','INVASION BRISAS DEL CARMEN',
+      'INVASION VILLA MAGDALENA','INVASION VILLA MARIANA','IQUEIMA','JARDINES DE BABILONIA','LA CAPILLA','LA CEIBA',
+      'LA ESPERANZA','LA PAZ','LA UNION','LAS ROSAS','LAS VILLAS','LIBERTADOR','LLERAS','LOS MANGOS I','LOS MANGOS II',
+      'LOS MANGOS III','LOS MANGOS IV','LOS MANGOS V','LOS MANGOS VI','LOS MANGOS VII','LOS PIJAOS','MINUTO DE DIOS',
+      'MIRADOR DE LA ESPERANZA','MIRADOR DEL SOL','MONACO','OBRERO','OBRERO DELIRIO','ORQUÍDEAS I','ORQUÍDEAS II',
+      'ORQUÍDEAS REAL I','ORQUÍDEAS REAL II','ORQUÍDEAS REAL III','ORQUÍDEAS REAL IV','PARADERO I','PARADERO II','PARAISO',
+      'PAKISTAN I','PAKISTAN II','PAKISTAN III','PALO VERDE','PARQUES DE ALEJANDRIA I','PARQUES DE ALEJANDRIA II',
+      'PARQUES DE ALEJANDRIA III','PARQUES DE ALEJANDRIA IV','PARQUES DE PAKISTAN I','PARQUES DE PAKISTAN II',
+      'PARQUES DE PAKISTAN III','PARQUES DE PAKISTAN IV','PARQUES DE PAKISTAN V','PORTAL DEL RUBY',
+      'PRADERAS DE PALMA REAL','PRADOS DE SAN REMO','PUERTA BLANCA','PUERTO BAHIA I','PUERTO BAHIA II','PUERTO DOMINGO',
+      'PUERTO MEDITERRANEO','QUINTAS DE SAN ESTEBAN','QUINTAS DE SAN FRANCISCO','QUINTAS DEL DIVINO NIÑO',
+      'QUINTAS FERROVIARIAS','RIVERAS DEL MAGDALENA','SAN ANDRES','SAN FELIPE DE BARAJAS','SAN FEMANDO DE SEGOVIA',
+      'SAN FRANCISCO','SAN LUIS','SANTA ANA','SANTA HAGIA SOTA','SANTA MARTHA','SANTA MONICA I','SANTA MONICA II','SINAI',
+      'SOL Y BRISA','TARQUI','TAYRONA','TERRAZAS DE ALEJANDRIA','TOPACIO','TRIANA','URBANIZACION ARRAYANES',
+      'URBANIZACION EL PALMAR','URBANIZACION EL PORTAL','URBANIZACION EL RUBY','URBANIZACION LOS ALMENDROS',
+      'URBANIZACION VILLA LUCIA','URBANIZACION VILLA MAGDALENA I','URBANIZACION VILLA MAGDALENA II',
+      'URBANIZACION VILLA MAGDALENA III','URBANIZACION VILLA MARIANA','VALLESUE','VENECIA I','VENECIA II','VENECIA III',
+      'VENECIA IV','VILLA DE LAS PALMAS','VILLA DEL RIO I','VILLA DEL RIO II','VILLA DEL SOL','VILLA ESPERANZA',
+      'VILLA LAS PALMAS','VILLA MEDINA','VILLAS DEL MEDITERANEO'
+    ];
+    const opt0 = document.createElement('option');
+    opt0.value = '';
+    opt0.textContent = 'Selecciona el Lugar';
+    opt0.disabled = true;
+    opt0.selected = true;
+    sel.appendChild(opt0);
+    baseOptions.forEach(v=>{
+      const o = document.createElement('option');
+      o.value = v;
+      o.textContent = v;
+      sel.appendChild(o);
+    });
+    if(choicesLugar){
+      try{ choicesLugar.destroy(); }catch(_){}
+      choicesLugar = null;
+    }
+    choicesLugar = new Choices(sel, {
+      searchEnabled: true,
+      itemSelectText: '',
+      shouldSort:false,
+      placeholder: true,
+      placeholderValue: 'Selecciona el Lugar',
+      searchPlaceholderValue: 'Escribe para filtrar'
+    });
+  }
+
+  let CAL_EVENTS = [];
+  let CAL_CURRENT_VIEW = 'month';
+  let CAL_CURRENT_DATE = new Date();
+
+  const CAL_MONTHS_SHORT = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+  const CAL_WEEKDAYS_SHORT = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+
+  function calPad2(n){ return String(n).padStart(2,'0'); }
+  function calFormatDMY(d){
+    if(!d) return '';
+    const dd = calPad2(d.getDate());
+    const mm = calPad2(d.getMonth()+1);
+    const yy = d.getFullYear();
+    return dd + '/' + mm + '/' + yy;
+  }
+  function calParseDMY(str){
+    if(!str) return null;
+    const p = String(str).split('/');
+    if(p.length !== 3) return null;
+    const d = parseInt(p[0],10);
+    const m = parseInt(p[1],10);
+    const y = parseInt(p[2],10);
+    if(!d || !m || !y) return null;
+    const dt = new Date(y,m-1,d);
+    if(isNaN(dt.getTime())) return null;
+    return dt;
+  }
+  function calMinutesFromTimeStr(str){
+    if(!str) return 0;
+    const p = String(str).split(':');
+    const h = parseInt(p[0]||'0',10);
+    const m = parseInt(p[1]||'0',10);
+    if(isNaN(h) || isNaN(m)) return 0;
+    return h*60 + m;
+  }
+  function calHMFromHMS(str){
+    if(!str) return {h:0,m:0};
+    const p = String(str).split(':');
+    const h = parseInt(p[0]||'0',10);
+    const m = parseInt(p[1]||'0',10);
+    return {h:isNaN(h)?0:h, m:isNaN(m)?0:m};
+  }
+  function calAmPmFromHM(h,m){
+    let hh = h;
+    let sufijo = 'AM';
+    if(h >= 12){
+      sufijo = 'PM';
+      if(h > 12) hh = h - 12;
+    }
+    if(h === 0){ hh = 12; sufijo = 'AM'; }
+    return calPad2(hh) + ':' + calPad2(m) + ' ' + sufijo;
+  }
+
+  function calEventMatchesFilter(ev, query){
+    if(!query) return true;
+    const q = query.toLowerCase();
+    return [
+      ev.nombreEvento,
+      ev.lugarEvento
+    ].some(v => String(v||'').toLowerCase().includes(q));
+  }
+
+  function calUpdateTitle(){
+    const titleEl = document.getElementById('cal-title-text');
+    if(!titleEl) return;
+    if(CAL_CURRENT_VIEW === 'year'){
+      titleEl.textContent = CAL_CURRENT_DATE.getFullYear();
+      return;
+    }
+    if(CAL_CURRENT_VIEW === 'week'){
+      const start = calStartOfWeek(CAL_CURRENT_DATE);
+      const end = calEndOfWeek(CAL_CURRENT_DATE);
+      const label = CAL_MONTHS_SHORT[start.getMonth()] + ' ' + start.getDate() +
+        ' – ' + CAL_MONTHS_SHORT[end.getMonth()] + ' ' + end.getDate() +
+        ' ' + end.getFullYear();
+      titleEl.textContent = label;
+      return;
+    }
+    if(CAL_CURRENT_VIEW === 'day'){
+      const d = CAL_CURRENT_DATE;
+      const label = d.getDate() + ' ' + CAL_MONTHS_SHORT[d.getMonth()] + ' ' + d.getFullYear();
+      titleEl.textContent = label;
+      return;
+    }
+    const d = CAL_CURRENT_DATE;
+    titleEl.textContent = d.toLocaleDateString('es-CO', { month:'long', year:'numeric' }).toUpperCase();
+  }
+
+  function calStartOfWeek(d){
+    const dt = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const day = dt.getDay();
+    const diff = (day + 7 - 0) % 7;
+    dt.setDate(dt.getDate() - diff);
+    return dt;
+  }
+  function calEndOfWeek(d){
+    const start = calStartOfWeek(d);
+    const end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
+    return end;
+  }
+
+  function calRender(){
+    const cont = document.getElementById('cal-container');
+    if(!cont) return;
+    const filterVal = document.getElementById('cal-filter-input')?.value.trim().toLowerCase() || '';
+    cont.innerHTML = '';
+    calUpdateTitle();
+
+    if(CAL_CURRENT_VIEW === 'month'){
+      calRenderMonth(cont, filterVal);
+    }else if(CAL_CURRENT_VIEW === 'week'){
+      calRenderWeek(cont, filterVal);
+    }else if(CAL_CURRENT_VIEW === 'day'){
+      calRenderDay(cont, filterVal);
+    }else if(CAL_CURRENT_VIEW === 'year'){
+      calRenderYear(cont, filterVal);
+    }
+  }
+
+  function calEventsOnDay(isoDMY){
+    return CAL_EVENTS.filter(ev => ev.fechaEvento === isoDMY);
+  }
+
+  function calRenderMonth(cont, filterVal){
+    const header = document.createElement('div');
+    header.className = 'cal-weekdays';
+    CAL_WEEKDAYS_SHORT.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'cal-weekday';
+      el.textContent = d;
+      header.appendChild(el);
+    });
+    cont.appendChild(header);
+
+    const grid = document.createElement('div');
+    grid.className = 'cal-month-grid';
+
+    const year = CAL_CURRENT_DATE.getFullYear();
+    const month = CAL_CURRENT_DATE.getMonth();
+    const firstDay = new Date(year,month,1);
+    const startWeekDay = firstDay.getDay();
+    const daysInMonth = new Date(year,month+1,0).getDate();
+
+    const prevMonthDays = (startWeekDay + 7 - 0) % 7;
+    const totalCells = prevMonthDays + daysInMonth;
+    const cells = totalCells <= 35 ? 35 : 42;
+
+    const todayDMY = calFormatDMY(new Date());
+
+    for(let i=0; i<cells; i++){
+      const cell = document.createElement('div');
+      cell.className = 'cal-day-cell';
+      const dayOffset = i - prevMonthDays + 1;
+      let cellDate;
+      let inThisMonth = true;
+
+      if(dayOffset < 1){
+        cellDate = new Date(year, month, dayOffset);
+        inThisMonth = false;
+      }else if(dayOffset > daysInMonth){
+        cellDate = new Date(year, month, dayOffset);
+        inThisMonth = false;
+      }else{
+        cellDate = new Date(year, month, dayOffset);
+      }
+
+      const iso = calFormatDMY(cellDate);
+      if(!inThisMonth) cell.classList.add('other-month');
+
+      const headerNum = document.createElement('div');
+      headerNum.className = 'cal-day-number';
+
+      if(iso === todayDMY){
+        headerNum.classList.add('today');
+        headerNum.textContent = cellDate.getDate();
+      }else{
+        headerNum.textContent = cellDate.getDate();
+      }
+
+      cell.appendChild(headerNum);
+
+      const events = calEventsOnDay(iso).filter(ev => calEventMatchesFilter(ev, filterVal));
+      events.sort((a,b)=>{
+        const ma = calMinutesFromTimeStr(a.horaInicio24 || '');
+        const mb = calMinutesFromTimeStr(b.horaInicio24 || '');
+        return ma - mb;
+      });
+
+      events.forEach(ev => {
+        const chip = document.createElement('div');
+        chip.className = 'cal-event-chip';
+        if(iso === todayDMY){
+          chip.classList.add('today-event');
+        }
+
+        const title = document.createElement('span');
+        title.className = 'cal-evt-title';
+        title.textContent = ev.nombreEvento || '';
+
+        const time = document.createElement('span');
+        time.className = 'cal-evt-time';
+        time.textContent = (ev.horaInicioAMPM || '') + ' - ' + (ev.horaTerminoAMPM || '');
+
+        chip.appendChild(title);
+        chip.appendChild(time);
+
+        chip.addEventListener('click', ()=> calOpenEventForEdit(ev.codigo));
+        cell.appendChild(chip);
+      });
+
+      grid.appendChild(cell);
+    }
+    cont.appendChild(grid);
+  }
+
+  function calRenderDay(cont, filterVal){
+    const header = document.createElement('div');
+    header.className = 'cal-day-header-row';
+    const d = CAL_CURRENT_DATE;
+    header.textContent = d.toLocaleDateString('es-CO',{ weekday:'long', day:'numeric', month:'long', year:'numeric' }).toUpperCase();
+    cont.appendChild(header);
+
+    const body = document.createElement('div');
+    body.className = 'cal-day-body';
+
+    const iso = calFormatDMY(d);
+    const events = calEventsOnDay(iso).filter(ev => calEventMatchesFilter(ev, filterVal));
+    events.sort((a,b)=>{
+      const ma = calMinutesFromTimeStr(a.horaInicio24 || '');
+      const mb = calMinutesFromTimeStr(b.horaInicio24 || '');
+      return ma - mb;
+    });
+
+    if(!events.length){
+      const p = document.createElement('p');
+      p.className = 'muted';
+      p.textContent = 'Sin eventos para este día.';
+      body.appendChild(p);
+    }else{
+      events.forEach(ev => {
+        const chip = document.createElement('div');
+        chip.className = 'cal-event-chip';
+        const todayDMY = calFormatDMY(new Date());
+        if(iso === todayDMY){
+          chip.classList.add('today-event');
+        }
+
+        const title = document.createElement('span');
+        title.className = 'cal-evt-title';
+        title.textContent = ev.nombreEvento || '';
+
+        const time = document.createElement('span');
+        time.className = 'cal-evt-time';
+        time.textContent = (ev.horaInicioAMPM || '') + ' - ' + (ev.horaTerminoAMPM || '');
+
+        chip.appendChild(title);
+        chip.appendChild(time);
+        chip.addEventListener('click', ()=> calOpenEventForEdit(ev.codigo));
+        body.appendChild(chip);
+      });
+    }
+
+    cont.appendChild(body);
+  }
+
+  function calRenderWeek(cont, filterVal){
+    const start = calStartOfWeek(CAL_CURRENT_DATE);
+    const end = calEndOfWeek(CAL_CURRENT_DATE);
+
+    const header = document.createElement('div');
+    header.className = 'cal-week-header-row';
+    header.textContent = 'Semana del ' +
+      start.getDate() + ' ' + CAL_MONTHS_SHORT[start.getMonth()] +
+      ' al ' +
+      end.getDate() + ' ' + CAL_MONTHS_SHORT[end.getMonth()] +
+      ' ' + end.getFullYear();
+    cont.appendChild(header);
+
+    const body = document.createElement('div');
+    body.className = 'cal-week-body';
+
+    const todayDMY = calFormatDMY(new Date());
+
+    for(let i=0;i<7;i++){
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      const iso = calFormatDMY(d);
+
+      const row = document.createElement('div');
+      row.style.borderRadius = '10px';
+      row.style.padding = '6px 8px';
+      row.style.background = '#f9fafb';
+      row.style.marginBottom = '6px';
+
+      const head = document.createElement('div');
+      head.style.display = 'flex';
+      head.style.alignItems = 'center';
+      head.style.justifyContent = 'space-between';
+
+      const left = document.createElement('span');
+      left.style.fontWeight = '700';
+      left.style.fontSize = '.8rem';
+      left.textContent = CAL_WEEKDAYS_SHORT[d.getDay()] + ' ' + d.getDate() + ' ' + CAL_MONTHS_SHORT[d.getMonth()];
+
+      head.appendChild(left);
+      row.appendChild(head);
+
+      const evs = calEventsOnDay(iso).filter(ev => calEventMatchesFilter(ev, filterVal));
+      evs.sort((a,b)=>{
+        const ma = calMinutesFromTimeStr(a.horaInicio24 || '');
+        const mb = calMinutesFromTimeStr(b.horaInicio24 || '');
+        return ma - mb;
+      });
+
+      if(!evs.length){
+        const p = document.createElement('p');
+        p.className = 'muted';
+        p.style.fontSize = '.72rem';
+        p.textContent = 'Sin eventos';
+        row.appendChild(p);
+      }else{
+        evs.forEach(ev => {
+          const chip = document.createElement('div');
+          chip.className = 'cal-event-chip';
+          if(iso === todayDMY){
+            chip.classList.add('today-event');
+          }
+
+          const title = document.createElement('span');
+          title.className = 'cal-evt-title';
+          title.textContent = ev.nombreEvento || '';
+
+          const time = document.createElement('span');
+          time.className = 'cal-evt-time';
+          time.textContent = (ev.horaInicioAMPM || '') + ' - ' + (ev.horaTerminoAMPM || '');
+
+          chip.appendChild(title);
+          chip.appendChild(time);
+          chip.addEventListener('click', ()=> calOpenEventForEdit(ev.codigo));
+          row.appendChild(chip);
+        });
+      }
+
+      body.appendChild(row);
+    }
+
+    cont.appendChild(body);
+  }
+
+  function calRenderYear(cont, filterVal){
+    const grid = document.createElement('div');
+    grid.className = 'cal-year-grid';
+
+    const year = CAL_CURRENT_DATE.getFullYear();
+    const eventsByMonth = {};
+    CAL_EVENTS.forEach(ev => {
+      const d = calParseDMY(ev.fechaEvento);
+      if(!d || d.getFullYear() !== year) return;
+      const m = d.getMonth();
+      if(!eventsByMonth[m]) eventsByMonth[m] = [];
+      if(calEventMatchesFilter(ev, filterVal)){
+        eventsByMonth[m].push(ev);
+      }
+    });
+
+    for(let m=0;m<12;m++){
+      const box = document.createElement('div');
+      box.className = 'cal-year-month';
+
+      const h4 = document.createElement('h4');
+      h4.textContent = new Date(year,m,1).toLocaleDateString('es-CO',{ month:'long' }).toUpperCase();
+      box.appendChild(h4);
+
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const trh = document.createElement('tr');
+      CAL_WEEKDAYS_SHORT.forEach(d => {
+        const th = document.createElement('th');
+        th.textContent = d.charAt(0);
+        trh.appendChild(th);
+      });
+      thead.appendChild(trh);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      const first = new Date(year,m,1);
+      const startDay = first.getDay();
+      const daysInMonth = new Date(year,m+1,0).getDate();
+
+      let day = 1;
+      let done = false;
+      while(!done){
+        const tr = document.createElement('tr');
+        for(let wd=0; wd<7; wd++){
+          const td = document.createElement('td');
+          if(wd < startDay && day === 1){
+            td.textContent = '';
+          }else if(day > daysInMonth){
+            td.textContent = '';
+            done = true;
+          }else{
+            td.textContent = day;
+            const dmy = calFormatDMY(new Date(year,m,day));
+            const hasEvent = (eventsByMonth[m]||[]).some(ev => ev.fechaEvento === dmy);
+            if(hasEvent){
+              const dot = document.createElement('span');
+              dot.className = 'cal-year-dot';
+              td.appendChild(dot);
+            }
+            day++;
+          }
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      }
+
+      table.appendChild(tbody);
+      box.appendChild(table);
+      grid.appendChild(box);
+    }
+
+    cont.appendChild(grid);
+  }
+
+  document.getElementById('cal-btn-today')?.addEventListener('click', ()=>{
+    CAL_CURRENT_DATE = new Date();
+    calRender();
+  });
+  document.getElementById('cal-prev')?.addEventListener('click', ()=>{
+    if(CAL_CURRENT_VIEW === 'year'){
+      CAL_CURRENT_DATE.setFullYear(CAL_CURRENT_DATE.getFullYear()-1);
+    }else if(CAL_CURRENT_VIEW === 'month'){
+      CAL_CURRENT_DATE.setMonth(CAL_CURRENT_DATE.getMonth()-1);
+    }else if(CAL_CURRENT_VIEW === 'week'){
+      CAL_CURRENT_DATE.setDate(CAL_CURRENT_DATE.getDate()-7);
+    }else if(CAL_CURRENT_VIEW === 'day'){
+      CAL_CURRENT_DATE.setDate(CAL_CURRENT_DATE.getDate()-1);
+    }
+    calRender();
+  });
+  document.getElementById('cal-next')?.addEventListener('click', ()=>{
+    if(CAL_CURRENT_VIEW === 'year'){
+      CAL_CURRENT_DATE.setFullYear(CAL_CURRENT_DATE.getFullYear()+1);
+    }else if(CAL_CURRENT_VIEW === 'month'){
+      CAL_CURRENT_DATE.setMonth(CAL_CURRENT_DATE.getMonth()+1);
+    }else if(CAL_CURRENT_VIEW === 'week'){
+      CAL_CURRENT_DATE.setDate(CAL_CURRENT_DATE.getDate()+7);
+    }else if(CAL_CURRENT_VIEW === 'day'){
+      CAL_CURRENT_DATE.setDate(CAL_CURRENT_DATE.getDate()+1);
+    }
+    calRender();
+  });
+
+  function calSyncViewButtons(){
+    ['cal-view-day','cal-view-week','cal-view-month','cal-view-year'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.classList.remove('active');
+    });
+    if(CAL_CURRENT_VIEW === 'day') document.getElementById('cal-view-day')?.classList.add('active');
+    if(CAL_CURRENT_VIEW === 'week') document.getElementById('cal-view-week')?.classList.add('active');
+    if(CAL_CURRENT_VIEW === 'month') document.getElementById('cal-view-month')?.classList.add('active');
+    if(CAL_CURRENT_VIEW === 'year') document.getElementById('cal-view-year')?.classList.add('active');
+  }
+
+  document.getElementById('cal-view-day')?.addEventListener('click', ()=>{
+    CAL_CURRENT_VIEW = 'day';
+    calSyncViewButtons();
+    calRender();
+  });
+  document.getElementById('cal-view-week')?.addEventListener('click', ()=>{
+    CAL_CURRENT_VIEW = 'week';
+    calSyncViewButtons();
+    calRender();
+  });
+  document.getElementById('cal-view-month')?.addEventListener('click', ()=>{
+    CAL_CURRENT_VIEW = 'month';
+    calSyncViewButtons();
+    calRender();
+  });
+  document.getElementById('cal-view-year')?.addEventListener('click', ()=>{
+    CAL_CURRENT_VIEW = 'year';
+    calSyncViewButtons();
+    calRender();
+  });
+
+  document.getElementById('cal-filter-toggle')?.addEventListener('click', ()=>{
+    const input = document.getElementById('cal-filter-input');
+    if(!input) return;
+    const visible = input.style.display !== 'none';
+    if(visible){
+      input.style.display = 'none';
+      input.value = '';
+      calRender();
+    }else{
+      input.style.display = '';
+      input.focus();
+    }
+  });
+  document.getElementById('cal-filter-input')?.addEventListener('input', ()=>{
+    calRender();
+  });
+
+  async function calLoadEvents(){
+    try{
+      const list = await apiGet('listarAgendaPrivada', {});
+      CAL_EVENTS = Array.isArray(list) ? list.map(ev => calNormalizeEvent(ev)) : [];
+    }catch(e){
+      CAL_EVENTS = [];
+      Swal.fire({icon:'error',title:'Error cargando agenda',text:String(e.message||e)});
+    }
+  }
+
+  function calNormalizeEvent(ev){
+    const out = Object.assign({}, ev||{});
+    out.codigo = String(out.codigo||'');
+    out.fechaEvento = String(out.fechaEvento||'');
+    out.nombreEvento = String(out.nombreEvento||'');
+    out.lugarEvento = String(out.lugarEvento||'');
+    out.lider = String(out.lider||'');
+    out.contacto = String(out.contacto||'');
+    out.horaInicio = String(out.horaInicio||'');
+    out.horaTermino = String(out.horaTermino||'');
+
+    const hi = calHMFromHMS(out.horaInicio);
+    const hf = calHMFromHMS(out.horaTermino);
+    out.horaInicio24 = calPad2(hi.h) + ':' + calPad2(hi.m);
+    out.horaTermino24 = calPad2(hf.h) + ':' + calPad2(hf.m);
+    out.horaInicioAMPM = calAmPmFromHM(hi.h, hi.m);
+    out.horaTerminoAMPM = calAmPmFromHM(hf.h, hf.m);
+    return out;
+  }
+
+  document.getElementById('cal-btn-new')?.addEventListener('click', ()=>{
+    if(!currentLeader){
+      Swal.fire({icon:'warning',title:'Sesión inválida'});
+      return;
+    }
+    calResetEventoForm();
+    document.getElementById('evento-title').textContent = 'REGISTRAR EVENTO';
+    document.getElementById('liderNombre').value = currentLeader.nombre || '';
+    document.getElementById('contacto').value = currentLeader.telefono || '';
+    showView('view-evento');
+  });
+
+  document.getElementById('evento-volver')?.addEventListener('click', ()=>{
+    playSoundOnce(SOUNDS.back);
+    showView('view-agenda');
+  });
+
+  function calResetEventoForm(){
+    document.getElementById('evento-codigo').value = '';
+    document.getElementById('nombreEvento').value = '';
+    document.getElementById('fechaEvento').value = '';
+    document.getElementById('horaInicio').value = '';
+    document.getElementById('horaTerminacion').value = '';
+    if(choicesLugar){
+      choicesLugar.setChoiceByValue('');
+    }else{
+      const sel = document.getElementById('lugarEvento');
+      if(sel) sel.value = '';
+    }
+  }
+
+  function ensureDMY(v){
+    if (!v) return '';
+    const s = String(v).trim();
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+    const d = new Date(s);
+    if (!isNaN(d.getTime())){
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const yy = d.getFullYear();
+      return dd + '/' + mm + '/' + yy;
+    }
+    return s;
+  }
+
+  function calFillEventoForm(ev){
+    document.getElementById('evento-codigo').value = ev.codigo || '';
+    document.getElementById('nombreEvento').value = ev.nombreEvento || '';
+    document.getElementById('fechaEvento').value = ensureDMY(ev.fechaEvento || '');
+    document.getElementById('horaInicio').value = ev.horaInicio24 || '';
+    document.getElementById('horaTerminacion').value = ev.horaTermino24 || '';
+    if(choicesLugar && ev.lugarEvento){
+      choicesLugar.setChoiceByValue(ev.lugarEvento);
+    }else{
+      const sel = document.getElementById('lugarEvento');
+      if(sel) sel.value = ev.lugarEvento || '';
+    }
+    document.getElementById('liderNombre').value = ev.lider || '';
+    document.getElementById('contacto').value = ev.contacto || '';
+  }
+
+  async function calOpenEventForEdit(codigo){
+    try{
+      const data = await apiGet('getEventoAgendaPrivada', { codigo });
+      if(!data){
+        Swal.fire({icon:'info',title:'Evento no encontrado'});
+        return;
+      }
+      const ev = calNormalizeEvent(data);
+      if(!currentLeader){
+        Swal.fire({icon:'warning',title:'Sesión inválida'});
+        return;
+      }
+      const leaderName = (currentLeader.nombre || '').trim().toUpperCase();
+      const leaderEvent = (ev.lider || '').trim().toUpperCase();
+      const canEdit = leaderName === leaderEvent;
+      if(!canEdit){
+        Swal.fire({icon:'info',title:'No puedes editar este evento',text:'Solo el líder que lo creó puede editarlo.'});
+        return;
+      }
+      calFillEventoForm(ev);
+      document.getElementById('evento-title').textContent = 'EDITAR EVENTO';
+      showView('view-evento');
+    }catch(e){
+      Swal.fire({icon:'error',title:'Error',text:String(e.message||e)});
+    }
+  }
+
+  function calInitSimplePicker(dSelId,mSelId,aSelId){
+    const dSel = document.getElementById(dSelId);
+    const mSel = document.getElementById(mSelId);
+    const aSel = document.getElementById(aSelId);
+    if(dSel && !dSel.childElementCount){
+      for(let d=1; d<=31; d++){
+        const opt = document.createElement('option');
+        opt.value = calPad2(d);
+        opt.textContent = opt.value;
+        dSel.appendChild(opt);
+      }
+    }
+    if(mSel && !mSel.childElementCount){
+      const mesesNombres=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+      for(let i=0;i<12;i++){
+        const opt = document.createElement('option');
+        opt.value = calPad2(i+1);
+        opt.textContent = mesesNombres[i];
+        mSel.appendChild(opt);
+      }
+    }
+    if(aSel && !aSel.childElementCount){
+      const fixedYear = 2026;
+      const opt = document.createElement('option');
+      opt.value = String(fixedYear);
+      opt.textContent = String(fixedYear);
+      opt.selected = true;
+      aSel.appendChild(opt);
+    }
+  }
+
+  calInitSimplePicker('evtDia','evtMes','evtAnio');
+
+  document.getElementById('fechaEvento')?.addEventListener('click', ()=>{
+    const m = document.getElementById('eventoFechaModal');
+    if(m){
+      m.style.display = 'flex';
+      m.setAttribute('aria-hidden','false');
+    }
+  });
+  document.getElementById('evtFechaCancelar')?.addEventListener('click', ()=>{
+    const m = document.getElementById('eventoFechaModal');
+    if(m){
+      m.style.display = 'none';
+      m.setAttribute('aria-hidden','true');
+    }
+  });
+  document.getElementById('evtFechaOk')?.addEventListener('click', ()=>{
+    const d = document.getElementById('evtDia')?.value || '01';
+    const m = document.getElementById('evtMes')?.value || '01';
+    const y = document.getElementById('evtAnio')?.value || String(new Date().getFullYear());
+    document.getElementById('fechaEvento').value = d + '/' + m + '/' + y;
+    const modal = document.getElementById('eventoFechaModal');
+    if(modal){
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden','true');
+    }
+  });
+
+  document.getElementById('evento-guardar')?.addEventListener('click', async ()=>{
+    if(!currentLeader){
+      Swal.fire({icon:'warning',title:'Sesión inválida'});
+      return;
+    }
+    const codigo = document.getElementById('evento-codigo').value.trim();
+    const nombreEvento = document.getElementById('nombreEvento').value.trim();
+    const fechaEvento = document.getElementById('fechaEvento').value.trim();
+    const horaInicio = document.getElementById('horaInicio').value.trim();
+    const horaTerminacion = document.getElementById('horaTerminacion').value.trim();
+    const selLugar = document.getElementById('lugarEvento');
+    const lugarEvento = selLugar ? selLugar.value : '';
+    const lider = currentLeader.nombre || '';
+    const contacto = currentLeader.telefono || '';
+
+    if(!nombreEvento || !fechaEvento || !horaInicio || !horaTerminacion || !lugarEvento || !lider || !contacto){
+      Swal.fire({icon:'warning',title:'Campos requeridos',text:'Todos los campos son obligatorios.'});
+      return;
+    }
+
+    const resumenHtml =
+      '<b>Nombre del Evento:</b> ' + nombreEvento + '<br>' +
+      '<b>Fecha:</b> ' + fechaEvento + '<br>' +
+      '<b>Hora Inicio:</b> ' + horaInicio + '<br>' +
+      '<b>Hora Terminación:</b> ' + horaTerminacion + '<br>' +
+      '<b>Lugar:</b> ' + lugarEvento + '<br>' +
+      '<b>Líder:</b> ' + lider + '<br>' +
+      '<b>Contacto:</b> ' + contacto + '<br><br>' +
+      '<img class="brand" src="https://res.cloudinary.com/dqqeavica/image/upload/v1753538919/BANNER_JHONNY_e0yw7m.png" alt="">';
+
+    const rs = await Swal.fire({
+      icon:'info',
+      title: codigo ? 'Resumen de Edición' : 'Resumen de Registro',
+      html:resumenHtml,
+      showCancelButton:true,
+      confirmButtonText:'Confirmar',
+      cancelButtonText:'Editar',
+      width:'80%',
+      customClass:{ popup:'swal2-responsive-popup' },
+      soundTag:'resumen'
+    });
+    if(!rs.isConfirmed) return;
+
+    const body = {
+      codigo,
+      nombreEvento,
+      fechaEvento,
+      horaInicio,
+      horaTerminacion,
+      lugarEvento,
+      lider,
+      contacto
+    };
+
+    try{
+      const res = await apiPost('guardarEventoAgendaPrivada', body);
+      if(!res || !res.success){
+        Swal.fire({icon:'error',title:'Error al guardar',text:res && res.message ? res.message : 'Intenta nuevamente.'});
+        return;
+      }
+      await calLoadEvents();
+      Swal.fire({icon:'success',title:'Evento guardado',timer:1800,showConfirmButton:false});
+      showView('view-agenda');
+      calRender();
+    }catch(e){
+      Swal.fire({icon:'error',title:'Error',text:String(e.message||e)});
+    }
+  });
+</script>
+</body>
+</html>
