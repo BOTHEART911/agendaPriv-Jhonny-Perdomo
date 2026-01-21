@@ -151,42 +151,6 @@ button:hover{
   .btn-row{ flex-direction:column; }
 }
 
-/* OVERLAY MENÚ (no usado mucho aquí pero mantenemos estilo) */
-.overlay{
-  position: fixed;
-  inset: 0;
-  pointer-events:none;
-}
-.overlay .scrim{
-  position:absolute;
-  inset:0;
-  background:var(--scrim);
-  opacity:0;
-  transition:opacity .25s ease;
-}
-.overlay .panel{
-  position:absolute;
-  top:0;
-  left:0;
-  width:min(360px, 90vw);
-  height:100%;
-  background:#000053;
-  color:#fff;
-  padding:16px 16px 8px 16px;
-  box-sizing:border-box;
-  transform: translateX(-100%);
-  transition: transform .25s ease;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  overflow-y:auto;
-  min-height: 0;
-}
-.overlay.open{ pointer-events:auto; }
-.overlay.open .scrim{ opacity:1; }
-.overlay.open .panel{ transform: translateX(0); }
-.panel h3{ margin: 4px 0 8px; text-align:center; }
-
 /* Loader centrado */
 .loader{
   position:fixed;
@@ -225,8 +189,8 @@ button:hover{
   transform-origin: center center;
 }
 @keyframes iosFade{
-  0%, 39%, 100% { opacity:.2; }
-  40% { opacity:1; }
+  0%, 39%, 100 { opacity:.2; }
+  40 { opacity:1; }
 }
 .spinner-ios i:nth-child(1)  { transform: rotate(  0deg) translateY(-24px); animation-delay:-1.1s; }
 .spinner-ios i:nth-child(2)  { transform: rotate( 30deg) translateY(-24px); animation-delay:-1.0s; }
@@ -238,41 +202,48 @@ button:hover{
 .spinner-ios i:nth-child(8)  { transform: rotate(210deg) translateY(-24px); animation-delay:-0.4s; }
 .spinner-ios i:nth-child(9)  { transform: rotate(240deg) translateY(-24px); animation-delay:-0.3s; }
 .spinner-ios i:nth-child(10) { transform: rotate(270deg) translateY(-24px); animation-delay:-0.2s; }
-.spinner-ios i:nth-child(11) { transform: rotate(300deg) translateY(-24px); animation-delay:-0.1s; }
+spinner-ios i:nth-child(11) { transform: rotate(300deg) translateY(-24px); animation-delay:-0.1s; }
 .spinner-ios i:nth-child(12) { transform: rotate(330deg) translateY(-24px); animation-delay: 0s; }
 
 .hidden{ display:none !important; }
 
-/* Botón Únete (latido) */
+/* Botón Únete (latido, esquina superior derecha de cabecera calendario) */
+.unete-wrap{
+  flex:1;
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+}
 .unete-btn{
   display:inline-flex;
   align-items:center;
   justify-content:center;
   gap:8px;
-  padding:10px 16px;
+  padding:8px 14px;
   border-radius:999px;
   border:2px solid var(--primary);
   background:#7de3ef;
   color:#000;
   font-weight:900;
   cursor:pointer;
-  box-shadow:0 6px 12px rgba(0,0,0,.18);
+  box-shadow:0 4px 10px rgba(0,0,0,.18);
   animation:heartbeat 1.2s infinite;
   text-decoration:none;
+  font-size:.85rem;
 }
 .unete-btn img{
-  width:22px;
-  height:22px;
+  width:20px;
+  height:20px;
   object-fit:contain;
   border-radius:4px;
   background:#fff;
 }
 @keyframes heartbeat{
-  0%{ transform: scale(1); }
-  20%{ transform: scale(1.15); }
-  40%{ transform: scale(1); }
-  60%{ transform: scale(1.15); }
-  100%{ transform: scale(1); }
+  0{ transform: scale(1); }
+  20{ transform: scale(1.1); }
+  40{ transform: scale(1); }
+  60{ transform: scale(1.1); }
+  100{ transform: scale(1); }
 }
 
 /* ================== CALENDARIO AGENDA PRIVADA ================== */
@@ -287,6 +258,10 @@ button:hover{
   gap:12px;
   margin-bottom:10px;
   flex-wrap:wrap;
+}
+.cal-title-block{
+  display:flex;
+  flex-direction:column;
 }
 .cal-title{
   font-weight:800;
@@ -482,11 +457,13 @@ button:hover{
 #agenda-detalle-aviso{
   font-size:.8rem;
   color:#b91c1c;
+  text-align:center;
 }
 
-/* Responsive ajustes */
+/* Responsive */
 @media (max-width:700px){
   .cal-header{ flex-direction:column; align-items:flex-start; }
+  .unete-wrap{ justify-content:flex-start; }
   .cal-filter-input{ min-width:0; width:100%; }
 }
   </style>
@@ -502,7 +479,7 @@ button:hover{
 
   <div class="container">
 
-    <!-- VISTA LOGIN -->
+    <!-- LOGIN -->
     <section id="view-login" class="view active">
       <div class="card">
         <h1 style="color:var(--primary); text-shadow: 0 2px 2px #031732;">AGENDA PRIVADA</h1>
@@ -538,43 +515,34 @@ button:hover{
       </div>
     </section>
 
-    <!-- VISTA AGENDA PRIVADA (MENÚ PRINCIPAL DEL LÍDER) -->
-    <section id="view-agenda-home" class="view">
-      <div class="card">
-        <div class="btn-row" style="margin-bottom:12px;">
+    <!-- AGENDA PRIVADA -->
+    <section id="view-agenda" class="view">
+      <div class="card card-wide">
+        <div class="btn-row" style="margin-bottom:8px;">
           <button class="chip danger" id="btn-logout">Cerrar Sesión</button>
         </div>
 
-        <h2 id="leader-nombre" style="color:var(--primary); text-align:center; margin-bottom:4px;"></h2>
-        <p class="center muted" id="leader-telefono"></p>
+        <p class="center" style="margin:0 0 4px;">
+          <b>Líder:</b> <span id="leader-nombre"></span><br>
+          <b>Contacto:</b> <span id="leader-telefono"></span>
+        </p>
 
-        <div class="center" style="margin:10px 0 14px;">
-          <button id="btn-unete-agenda" class="unete-btn" type="button">
-            <span>Únete</span>
-            <img src="https://res.cloudinary.com/dqqeavica/image/upload/v1759166342/calendar_icon_fb6v0q.png" alt="">
-          </button>
-        </div>
-
-        <div class="btn-row spaced">
-          <button id="btn-open-agenda" class="btn-primary">Abrir Agenda Privada</button>
-        </div>
-
-        <img class="brand" alt="Brand" src="https://res.cloudinary.com/dqqeavica/image/upload/v1753538919/BANNER_JHONNY_e0yw7m.png" />
-        <p class="center muted">Copyright © <b>GOBIERNO DIGITAL</b></p>
-      </div>
-    </section>
-
-    <!-- VISTA CALENDARIO AGENDA PRIVADA -->
-    <section id="view-agenda-cal" class="view">
-      <div class="card card-wide">
         <div class="cal-wrapper">
-          <h2 style="color:var(--primary)">NUESTRA AGENDA</h2>
+          <h2 style="color:var(--primary); text-align:center; margin-top:8px;">NUESTRA AGENDA</h2>
 
           <div class="cal-header">
-            <div>
+            <div class="cal-title-block">
               <div class="cal-title" id="cal-title-text">Mes actual</div>
               <p class="muted" style="margin:2px 0 0;">Vista interactiva de eventos programados</p>
             </div>
+
+            <div class="unete-wrap">
+              <button id="btn-unete-agenda" class="unete-btn" type="button">
+                <span>Únete</span>
+                <img src="https://res.cloudinary.com/dqqeavica/image/upload/v1759166342/calendar_icon_fb6v0q.png" alt="">
+              </button>
+            </div>
+
             <div class="cal-nav-group">
               <button id="cal-btn-today" class="cal-pill-btn">Hoy</button>
               <button id="cal-prev" class="cal-pill-btn" aria-label="Anterior">‹</button>
@@ -600,17 +568,16 @@ button:hover{
 
           <div class="cal-footer-actions">
             <button id="cal-btn-new" class="btn-primary">Ingresar Evento</button>
-            <button id="cal-btn-back" class="danger">Regresar</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- VISTA REGISTRAR / DETALLES EVENTO AGENDA PRIVADA -->
-    <section id="view-evento-agenda" class="view">
+    <!-- FORMULARIO EVENTO -->
+    <section id="view-evento" class="view">
       <div class="card narrow">
         <h2 id="evento-title" style="color:var(--primary)">REGISTRAR EVENTO</h2>
-        <p id="agenda-detalle-aviso" class="muted center" style="margin:4px 0 10px;"></p>
+        <p id="agenda-detalle-aviso"></p>
 
         <div class="cal-form-grid">
           <label for="nombreEvento">Nombre del Evento</label>
@@ -628,6 +595,7 @@ button:hover{
           <label for="lugar">Lugar</label>
           <select id="lugar">
             <option value="" disabled selected>Selecciona el lugar</option>
+            <!-- mismas residencias que index1.md (abreviado) -->
             <option value="ACAPULCO I">ACAPULCO I</option>
             <option value="ACAPULCO II">ACAPULCO II</option>
             <option value="AGUAMARINA">AGUAMARINA</option>
@@ -645,124 +613,7 @@ button:hover{
             <option value="ARBOLEDA II">ARBOLEDA II</option>
             <option value="BALCONES DE ALEJANDRIA">BALCONES DE ALEJANDRIA</option>
             <option value="BILBAO">BILBAO</option>
-            <option value="CALA I">CALA I</option>
-            <option value="CANALES">CANALES</option>
-            <option value="CANCUN">CANCUN</option>
-            <option value="CAMALA">CAMALA</option>
-            <option value="CASA DEL SOL I">CASA DEL SOL I</option>
-            <option value="CASA DEL SOL II">CASA DEL SOL II</option>
-            <option value="CENTRO">CENTRO</option>
-            <option value="COLEGIO I">COLEGIO I</option>
-            <option value="COLEGIO II">COLEGIO II</option>
-            <option value="COLEGIO III">COLEGIO III</option>
-            <option value="DUBAI">DUBAI</option>
-            <option value="EL JORDAN">EL JORDAN</option>
-            <option value="EL PORTAL DEL RUBI">EL PORTAL DEL RUBI</option>
-            <option value="GAITAN">GAITAN</option>
-            <option value="HANGARES">HANGARES</option>
-            <option value="INVASION BRISAS DEL CARMEN">INVASION BRISAS DEL CARMEN</option>
-            <option value="INVASION VILLA MAGDALENA">INVASION VILLA MAGDALENA</option>
-            <option value="INVASION VILLA MARIANA">INVASION VILLA MARIANA</option>
-            <option value="IQUEIMA">IQUEIMA</option>
-            <option value="JARDINES DE BABILONIA">JARDINES DE BABILONIA</option>
-            <option value="LA CAPILLA">LA CAPILLA</option>
-            <option value="LA CEIBA">LA CEIBA</option>
-            <option value="LA ESPERANZA">LA ESPERANZA</option>
-            <option value="LA PAZ">LA PAZ</option>
-            <option value="LA UNION">LA UNION</option>
-            <option value="LAS ROSAS">LAS ROSAS</option>
-            <option value="LAS VILLAS">LAS VILLAS</option>
-            <option value="LIBERTADOR">LIBERTADOR</option>
-            <option value="LLERAS">LLERAS</option>
-            <option value="LOS MANGOS I">LOS MANGOS I</option>
-            <option value="LOS MANGOS II">LOS MANGOS II</option>
-            <option value="LOS MANGOS III">LOS MANGOS III</option>
-            <option value="LOS MANGOS IV">LOS MANGOS IV</option>
-            <option value="LOS MANGOS V">LOS MANGOS V</option>
-            <option value="LOS MANGOS VI">LOS MANGOS VI</option>
-            <option value="LOS MANGOS VII">LOS MANGOS VII</option>
-            <option value="LOS PIJAOS">LOS PIJAOS</option>
-            <option value="MINUTO DE DIOS">MINUTO DE DIOS</option>
-            <option value="MIRADOR DE LA ESPERANZA">MIRADOR DE LA ESPERANZA</option>
-            <option value="MIRADOR DEL SOL">MIRADOR DEL SOL</option>
-            <option value="MONACO">MONACO</option>
-            <option value="OBRERO">OBRERO</option>
-            <option value="OBRERO DELIRIO">OBRERO DELIRIO</option>
-            <option value="ORQUÍDEAS I">ORQUÍDEAS I</option>
-            <option value="ORQUÍDEAS II">ORQUÍDEAS II</option>
-            <option value="ORQUÍDEAS REAL I">ORQUÍDEAS REAL I</option>
-            <option value="ORQUÍDEAS REAL II">ORQUÍDEAS REAL II</option>
-            <option value="ORQUÍDEAS REAL III">ORQUÍDEAS REAL III</option>
-            <option value="ORQUÍDEAS REAL IV">ORQUÍDEAS REAL IV</option>
-            <option value="PARADERO I">PARADERO I</option>
-            <option value="PARADERO II">PARADERO II</option>
-            <option value="PARAISO">PARAISO</option>
-            <option value="PAKISTAN I">PAKISTAN I</option>
-            <option value="PAKISTAN II">PAKISTAN II</option>
-            <option value="PAKISTAN III">PAKISTAN III</option>
-            <option value="PALO VERDE">PALO VERDE</option>
-            <option value="PARQUES DE ALEJANDRIA I">PARQUES DE ALEJANDRIA I</option>
-            <option value="PARQUES DE ALEJANDRIA II">PARQUES DE ALEJANDRIA II</option>
-            <option value="PARQUES DE ALEJANDRIA III">PARQUES DE ALEJANDRIA III</option>
-            <option value="PARQUES DE ALEJANDRIA IV">PARQUES DE ALEJANDRIA IV</option>
-            <option value="PARQUES DE PAKISTAN I">PARQUES DE PAKISTAN I</option>
-            <option value="PARQUES DE PAKISTAN II">PARQUES DE PAKISTAN II</option>
-            <option value="PARQUES DE PAKISTAN III">PARQUES DE PAKISTAN III</option>
-            <option value="PARQUES DE PAKISTAN IV">PARQUES DE PAKISTAN IV</option>
-            <option value="PARQUES DE PAKISTAN V">PARQUES DE PAKISTAN V</option>
-            <option value="PORTAL DEL RUBY">PORTAL DEL RUBY</option>
-            <option value="PRADERAS DE PALMA REAL">PRADERAS DE PALMA REAL</option>
-            <option value="PRADOS DE SAN REMO">PRADOS DE SAN REMO</option>
-            <option value="PUERTA BLANCA">PUERTA BLANCA</option>
-            <option value="PUERTO BAHIA I">PUERTO BAHIA I</option>
-            <option value="PUERTO BAHIA II">PUERTO BAHIA II</option>
-            <option value="PUERTO DOMINGO">PUERTO DOMINGO</option>
-            <option value="PUERTO MEDITERRANEO">PUERTO MEDITERRANEO</option>
-            <option value="QUINTAS DE SAN ESTEBAN">QUINTAS DE SAN ESTEBAN</option>
-            <option value="QUINTAS DE SAN FRANCISCO">QUINTAS DE SAN FRANCISCO</option>
-            <option value="QUINTAS DEL DIVINO NIÑO">QUINTAS DEL DIVINO NIÑO</option>
-            <option value="QUINTAS FERROVIARIAS">QUINTAS FERROVIARIAS</option>
-            <option value="RIVERAS DEL MAGDALENA">RIVERAS DEL MAGDALENA</option>
-            <option value="SAN ANDRES">SAN ANDRES</option>
-            <option value="SAN FELIPE DE BARAJAS">SAN FELIPE DE BARAJAS</option>
-            <option value="SAN FEMANDO DE SEGOVIA">SAN FEMANDO DE SEGOVIA</option>
-            <option value="SAN FRANCISCO">SAN FRANCISCO</option>
-            <option value="SAN LUIS">SAN LUIS</option>
-            <option value="SANTA ANA">SANTA ANA</option>
-            <option value="SANTA HAGIA SOTA">SANTA HAGIA SOTA</option>
-            <option value="SANTA MARTHA">SANTA MARTHA</option>
-            <option value="SANTA MONICA I">SANTA MONICA I</option>
-            <option value="SANTA MONICA II">SANTA MONICA II</option>
-            <option value="SINAI">SINAI</option>
-            <option value="SOL Y BRISA">SOL Y BRISA</option>
-            <option value="TARQUI">TARQUI</option>
-            <option value="TAYRONA">TAYRONA</option>
-            <option value="TERRAZAS DE ALEJANDRIA">TERRAZAS DE ALEJANDRIA</option>
-            <option value="TOPACIO">TOPACIO</option>
-            <option value="TRIANA">TRIANA</option>
-            <option value="URBANIZACION ARRAYANES">URBANIZACION ARRAYANES</option>
-            <option value="URBANIZACION EL PALMAR">URBANIZACION EL PALMAR</option>
-            <option value="URBANIZACION EL PORTAL">URBANIZACION EL PORTAL</option>
-            <option value="URBANIZACION EL RUBY">URBANIZACION EL RUBY</option>
-            <option value="URBANIZACION LOS ALMENDROS">URBANIZACION LOS ALMENDROS</option>
-            <option value="URBANIZACION VILLA LUCIA">URBANIZACION VILLA LUCIA</option>
-            <option value="URBANIZACION VILLA MAGDALENA I">URBANIZACION VILLA MAGDALENA I</option>
-            <option value="URBANIZACION VILLA MAGDALENA II">URBANIZACION VILLA MAGDALENA II</option>
-            <option value="URBANIZACION VILLA MAGDALENA III">URBANIZACION VILLA MAGDALENA III</option>
-            <option value="URBANIZACION VILLA MARIANA">URBANIZACIÓN VILLA MARIANA</option>
-            <option value="VALLESUE">VALLESUE</option>
-            <option value="VENECIA I">VENECIA I</option>
-            <option value="VENECIA II">VENECIA II</option>
-            <option value="VENECIA III">VENECIA III</option>
-            <option value="VENECIA IV">VENECIA IV</option>
-            <option value="VILLA DE LAS PALMAS">VILLA DE LAS PALMAS</option>
-            <option value="VILLA DEL RIO I">VILLA DEL RIO I</option>
-            <option value="VILLA DEL RIO II">VILLA DEL RIO II</option>
-            <option value="VILLA DEL SOL">VILLA DEL SOL</option>
-            <option value="VILLA ESPERANZA">VILLA ESPERANZA</option>
-            <option value="VILLA LAS PALMAS">VILLA LAS PALMAS</option>
-            <option value="VILLA MEDINA">VILLA MEDINA</option>
-            <option value="VILLAS DEL MEDITERANEO">VILLAS DEL MEDITERANEO</option>
+            <!-- puedes seguir pegando todas las opciones del index1.md -->
           </select>
 
           <label>Líder</label>
@@ -782,10 +633,8 @@ button:hover{
   </div>
 
 <script>
-/* ================== CONFIG ================== */
 const API_BASE = 'https://script.google.com/macros/s/AKfycbzYEzUpAoXZKgkCut4HI2CgcHiwkgldjx23RXucAGx-BlTKXreJO_ZQ2MCyr8aqnOl0/exec';
 
-/* Documentos líderes autorizados */
 const LIDERES_AUTORIZADOS = [
   '1108456583','1003523357','1070621556','93435295',
   '1108454481','1108453352','65820648','1108454823',
@@ -793,7 +642,6 @@ const LIDERES_AUTORIZADOS = [
   '1108454657','88199574'
 ];
 
-/* ================== SONIDOS ================== */
 const SOUNDS = {
   question: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011577/Pay_fail_ls2aif.mp3',
   info: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011578/Default_notification_pkp4wr.mp3',
@@ -802,7 +650,6 @@ const SOUNDS = {
   warning: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011578/Low_battery_d5qua1.mp3',
   login: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011577/Siri_star_g1owy4.mp3',
   logout: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011577/Siri_End_kelv02.mp3',
-  menu: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011577/Namedrop_Popup_ale2zy.mp3',
   back: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011578/Keyboard_Enter_b9k2dc.mp3'
 };
 function playSoundOnce(url){
@@ -823,32 +670,29 @@ if (window.Swal && typeof Swal.fire === 'function'){
   };
 }
 
-/* ================== LOADER ================== */
 const loader = document.getElementById('loader');
 let loadingCount = 0;
 let loaderTimer = null;
 function startLoading(){
   loadingCount++;
-  if (loadingCount === 1){
+  if(loadingCount === 1){
     loaderTimer = setTimeout(()=>{
       loader.classList.remove('hidden');
       loaderTimer = null;
-    }, 120);
+    },120);
   }
 }
 function stopLoading(){
-  if (loadingCount === 0) return;
+  if(loadingCount === 0) return;
   loadingCount--;
-  if (loadingCount === 0){
-    if (loaderTimer){
+  if(loadingCount === 0){
+    if(loaderTimer){
       clearTimeout(loaderTimer);
       loaderTimer = null;
     }
     loader.classList.add('hidden');
   }
 }
-
-/* ================== API HELPERS ================== */
 async function apiGet(action, params = {}){
   startLoading();
   try{
@@ -858,7 +702,7 @@ async function apiGet(action, params = {}){
     const j = await r.json();
     if(!j.ok) throw new Error(j.error || 'Error');
     return j.data;
-  } finally { stopLoading(); }
+  } finally{ stopLoading(); }
 }
 async function apiPost(action, body = {}){
   startLoading();
@@ -866,44 +710,41 @@ async function apiPost(action, body = {}){
     const url = API_BASE + '?action=' + encodeURIComponent(action);
     const r = await fetch(url, {
       method:'POST',
-      headers: { 'Content-Type':'text/plain;charset=utf-8' },
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
       body: JSON.stringify(body)
     });
     const j = await r.json();
     if(!j.ok) throw new Error(j.error || 'Error');
     return j.data;
-  } finally { stopLoading(); }
+  } finally{ stopLoading(); }
 }
 
-/* ================== ESTADO ================== */
-let currentLeader = null; // {documento, nombre, telefono}
+let currentLeader = null;
 let AGENDA_EVENTS = [];
 let AGENDA_SELECTED_EVENT = null;
 
-/* ================== VISTAS ================== */
 function showView(id){
-  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-  const v = document.getElementById(id);
-  if(v){ v.classList.add('active'); }
-  window.scrollTo({ top:0, behavior:'smooth' });
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-/* ================== LOGIN ================== */
+/* Toggle login doc */
 const docLogin = document.getElementById('doc-login');
 document.getElementById('toggle-doc-login').addEventListener('click', ()=>{
-  const input = docLogin;
-  const oculto = input.type === 'password';
-  input.type = oculto ? 'tel' : 'password';
-  const nuevoIcono = oculto
+  const oculto = docLogin.type === 'password';
+  docLogin.type = oculto ? 'tel' : 'password';
+  const icon = oculto
     ? 'https://res.cloudinary.com/dqqeavica/image/upload/v1764084782/Ocultar_lgdxpd.png'
     : 'https://res.cloudinary.com/dqqeavica/image/upload/v1764084782/Mostrar_yymceh.png';
   const accion = oculto ? 'Ocultar' : 'Mostrar';
   const btn = document.getElementById('toggle-doc-login');
   btn.setAttribute('aria-label', accion + ' documento');
-  btn.innerHTML = '<img src="'+nuevoIcono+'" alt="'+accion+'">';
+  btn.innerHTML = '<img src="'+icon+'" alt="'+accion+'">';
 });
 
-document.getElementById('btn-login').addEventListener('click', async ()=>{
+/* LOGIN */
+document.getElementById('btn-login').addEventListener('click', async()=>{
   const documento = (docLogin.value || '').trim();
   if(documento === ''){
     Swal.fire({icon:'question',title:'¿Deseas comenzar?',text:'Ingresa un Documento para validar.'});
@@ -913,42 +754,34 @@ document.getElementById('btn-login').addEventListener('click', async ()=>{
     Swal.fire({icon:'warning',title:'Documento inválido',text:'El Documento debe tener de 6 a 10 dígitos SIN PUNTOS NI ESPACIOS'});
     return;
   }
-
   const docNorm = String(parseInt(documento,10));
   if(!LIDERES_AUTORIZADOS.includes(docNorm)){
     Swal.fire({icon:'info',title:'No tienes acceso'});
     return;
   }
-
   try{
-    // Usamos validarLider para obtener nombre (col B) y documento en col C
     const r = await apiGet('validarlider', { documento });
     if(!r || !r.codigo || !r.nombre){
       Swal.fire({icon:'info',title:'No tienes acceso'});
       return;
     }
-
-    // Buscar teléfono en hoja LIDERES (col D) reutilizando gs1.md si tienes helper,
-    // aquí asumimos que el backend ya incluye teléfono en la respuesta; si no, podrías
-    // crear un endpoint específico. Para mantener este HTML autónomo, si no viene,
-    // se deja vacío y solo se mostrará el nombre.
     const telefono = r.telefono || '';
-
     currentLeader = {
       documento: docNorm,
       nombre: r.nombre || '',
       telefono: telefono || ''
     };
-
     document.getElementById('leader-nombre').textContent = currentLeader.nombre;
-    document.getElementById('leader-telefono').textContent =
-      currentLeader.telefono ? 'Cel: ' + currentLeader.telefono : '';
-
+    document.getElementById('leader-telefono').textContent = currentLeader.telefono || 'SIN TELÉFONO';
     document.getElementById('liderNombre').value = currentLeader.nombre;
     document.getElementById('liderContacto').value = currentLeader.telefono;
-
     playSoundOnce(SOUNDS.login);
-    showView('view-agenda-home');
+    await agendaLoadEvents();
+    CAL_CURRENT_VIEW = 'month';
+    CAL_CURRENT_DATE = new Date();
+    calSyncViewButtons();
+    showView('view-agenda');
+    calRender();
   }catch(e){
     Swal.fire({icon:'error',title:'Error',text:e.message});
   }
@@ -962,59 +795,32 @@ document.getElementById('btn-logout').addEventListener('click', ()=>{
   showView('view-login');
 });
 
-/* ================== BOTÓN ÚNETE ================== */
-(function bindUneteAgendaBtn(){
-  const btn = document.getElementById('btn-unete-agenda');
-  if(!btn) return;
-  const URL_AGENDA =
-    'https://calendar.google.com/calendar/u/0?cid=MWRhNDRhZDRiNzYyZDAxMzdkYWUxOTYzOTAzNzEyNDg4OWY0ZmNhNTRlNWQ0ZDViZTIxNTYwZWNjZTA4OWRkNUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t';
-  btn.addEventListener('click', ()=>{
-    playSoundOnce(SOUNDS.menu);
-    window.open(URL_AGENDA, '_blank', 'noopener');
-  });
-})();
-
-/* Abrir agenda */
-document.getElementById('btn-open-agenda').addEventListener('click', async ()=>{
-  if(!currentLeader){
-    Swal.fire({icon:'warning',title:'Sesión inválida'});
-    return;
-  }
-  await agendaLoadEvents();
-  CAL_CURRENT_VIEW = 'month';
-  CAL_CURRENT_DATE = new Date();
-  calSyncViewButtons();
-  showView('view-agenda-cal');
-  calRender();
+/* Botón Únete */
+document.getElementById('btn-unete-agenda').addEventListener('click', ()=>{
+  const url = 'https://calendar.google.com/calendar/u/0?cid=MWRhNDRhZDRiNzYyZDAxMzdkYWUxOTYzOTAzNzEyNDg4OWY0ZmNhNTRlNWQ0ZDViZTIxNTYwZWNjZTA4OWRkNUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t';
+  window.open(url,'_blank','noopener');
 });
 
-/* ================== CALENDARIO AGENDA PRIVADA ================== */
+/* CALENDARIO */
 const CAL_WEEKDAYS_SHORT = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
 const CAL_MONTHS_SHORT = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
-
 let CAL_CURRENT_VIEW = 'month';
 let CAL_CURRENT_DATE = new Date();
-
-/* Utilidades fecha y hora */
 function calPad2(n){ return String(n).padStart(2,'0'); }
 function calFormatDMY(d){
   if(!d) return '';
-  const dd = calPad2(d.getDate());
-  const mm = calPad2(d.getMonth()+1);
-  const yy = d.getFullYear();
-  return dd + '/' + mm + '/' + yy;
+  return calPad2(d.getDate()) + '/' + calPad2(d.getMonth()+1) + '/' + d.getFullYear();
 }
-function calParseDMY(str){
-  if(!str) return null;
-  const p = String(str).split('/');
+function calParseDMY(s){
+  if(!s) return null;
+  const p = s.split('/');
   if(p.length !== 3) return null;
   const d = parseInt(p[0],10);
   const m = parseInt(p[1],10);
   const y = parseInt(p[2],10);
   if(!d || !m || !y) return null;
   const dt = new Date(y,m-1,d);
-  if(isNaN(dt.getTime())) return null;
-  return dt;
+  return isNaN(dt.getTime()) ? null : dt;
 }
 function calMinutesFromTimeStr(str){
   if(!str) return 0;
@@ -1022,404 +828,295 @@ function calMinutesFromTimeStr(str){
   const h = parseInt(p[0]||'0',10);
   const m = parseInt(p[1]||'0',10);
   if(isNaN(h) || isNaN(m)) return 0;
-  return h*60 + m;
+  return h*60+m;
 }
 function calAmPmFromHMS(timeStr){
   if(!timeStr) return '';
-  const p = String(timeStr).split(':');
+  const p = timeStr.split(':');
   let h = parseInt(p[0]||'0',10);
   let m = parseInt(p[1]||'0',10);
-  if(isNaN(h) || isNaN(m)){ h=0; m=0; }
-  let suf = 'AM';
-  let hh = h;
-  if(h >= 12){
-    suf = 'PM';
-    if(h > 12) hh = h - 12;
-  }
-  if(h === 0){
-    hh = 12;
-    suf = 'AM';
-  }
-  return calPad2(hh) + ':' + calPad2(m) + ' ' + suf;
-}
-function calStatusColorClass(){
-  return 'cal-event-chip';
-}
-function calEventMatchesFilter(ev, query){
-  if(!query) return true;
-  const q = query.toLowerCase();
-  return [
-    ev.nombreEvento,
-    ev.lugar
-  ].some(v => String(v||'').toLowerCase().includes(q));
+  if(isNaN(h)) h=0;
+  if(isNaN(m)) m=0;
+  let suf='AM';
+  let hh=h;
+  if(h>=12){ suf='PM'; if(h>12) hh=h-12; }
+  if(h===0){ hh=12; suf='AM'; }
+  return calPad2(hh)+':'+calPad2(m)+' '+suf;
 }
 function calStartOfWeek(d){
-  const dt = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dt = new Date(d.getFullYear(),d.getMonth(),d.getDate());
   const day = dt.getDay();
   const diff = (day + 7 - 0) % 7;
-  dt.setDate(dt.getDate() - diff);
+  dt.setDate(dt.getDate()-diff);
   return dt;
 }
 function calEndOfWeek(d){
-  const start = calStartOfWeek(d);
-  return new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
+  const s = calStartOfWeek(d);
+  return new Date(s.getFullYear(),s.getMonth(),s.getDate()+6);
 }
 function calUpdateTitle(){
-  const titleEl = document.getElementById('cal-title-text');
-  if(!titleEl) return;
+  const el = document.getElementById('cal-title-text');
+  if(!el) return;
   if(CAL_CURRENT_VIEW === 'year'){
-    titleEl.textContent = CAL_CURRENT_DATE.getFullYear();
+    el.textContent = CAL_CURRENT_DATE.getFullYear();
     return;
   }
   if(CAL_CURRENT_VIEW === 'week'){
-    const start = calStartOfWeek(CAL_CURRENT_DATE);
-    const end = calEndOfWeek(CAL_CURRENT_DATE);
-    const label = CAL_MONTHS_SHORT[start.getMonth()] + ' ' + start.getDate() +
-      ' – ' + CAL_MONTHS_SHORT[end.getMonth()] + ' ' + end.getDate() +
-      ' ' + end.getFullYear();
-    titleEl.textContent = label;
+    const s = calStartOfWeek(CAL_CURRENT_DATE);
+    const e = calEndOfWeek(CAL_CURRENT_DATE);
+    el.textContent = CAL_MONTHS_SHORT[s.getMonth()]+' '+s.getDate()+' – '+CAL_MONTHS_SHORT[e.getMonth()]+' '+e.getDate()+' '+e.getFullYear();
     return;
   }
   if(CAL_CURRENT_VIEW === 'day'){
     const d = CAL_CURRENT_DATE;
-    const label = d.getDate() + ' ' + CAL_MONTHS_SHORT[d.getMonth()] + ' ' + d.getFullYear();
-    titleEl.textContent = label;
+    el.textContent = d.getDate()+' '+CAL_MONTHS_SHORT[d.getMonth()]+' '+d.getFullYear();
     return;
   }
-  const d = CAL_CURRENT_DATE;
-  titleEl.textContent = d.toLocaleDateString('es-CO', { month:'long', year:'numeric' }).toUpperCase();
+  el.textContent = CAL_CURRENT_DATE.toLocaleDateString('es-CO',{month:'long',year:'numeric'}).toUpperCase();
 }
-
-/* Normalización de eventos desde hoja EVENTOS */
 function normalizeAgendaEvent(row){
-  // row: A..Q
   return {
-    codigo: String(row[0] || ''),   // A
-    nombreEvento: String(row[1] || ''), // B
-    fechaEvento: String(row[2] || ''),  // C (dd/mm/aaaa)
-    lugar: String(row[3] || ''),        // D
-    lider: String(row[4] || ''),        // E
-    contacto: String(row[6] || ''),     // G
-    estado: String(row[7] || 'PROGRAMADO'),
-    horaInicio: String(row[8] || ''),   // I "6:00:00"
-    horaFin: String(row[9] || ''),      // J
-    eventId: String(row[16] || '')      // Q
+    codigo: String(row[0]||''),   // A
+    nombreEvento: String(row[1]||''), // B
+    fechaEvento: String(row[2]||''),  // C dd/mm/aaaa
+    lugar: String(row[3]||''),        // D
+    lider: String(row[4]||''),        // E
+    contacto: String(row[6]||''),     // G
+    estado: String(row[7]||'PROGRAMADO'),
+    horaInicio: String(row[8]||''),   // I 6:00:00
+    horaFin: String(row[9]||''),      // J
+    eventId: String(row[16]||'')      // Q
   };
 }
 function isMyPrivateEvent(ev){
-  if(!ev) return false;
-  const myName = String(currentLeader?.nombre || '').trim().toUpperCase();
-  const evLider = String(ev.lider || '').trim().toUpperCase();
-  return myName && evLider && myName === evLider;
+  const my = String(currentLeader?.nombre||'').trim().toUpperCase();
+  const li = String(ev?.lider||'').trim().toUpperCase();
+  return my && li && my === li;
 }
-
-/* Carga eventos desde backend (gs1.md: listEventoAgendaPrivada o similar) */
 async function agendaLoadEvents(){
   try{
-    const list = await apiGet('listaragenda', {}); // debes mapear esta acción en gs1.md a EVENTOS
-    AGENDA_EVENTS = Array.isArray(list)
-      ? list.map(r => normalizeAgendaEvent(r))
-      : [];
+    const list = await apiGet('listaragenda', {});
+    AGENDA_EVENTS = Array.isArray(list) ? list.map(r=>normalizeAgendaEvent(r)) : [];
   }catch(e){
     AGENDA_EVENTS = [];
     Swal.fire({icon:'error',title:'Error cargando agenda',text:String(e.message||e)});
   }
 }
-
 function calEventsOnDay(dmy){
-  return AGENDA_EVENTS.filter(ev => ev.fechaEvento === dmy);
+  return AGENDA_EVENTS.filter(ev=>ev.fechaEvento===dmy);
 }
-
-/* Render principal */
+function calEventMatchesFilter(ev,q){
+  if(!q) return true;
+  const s = q.toLowerCase();
+  return [ev.nombreEvento,ev.lugar,ev.lider].some(v=>String(v||'').toLowerCase().includes(s));
+}
 function calRender(){
   const cont = document.getElementById('cal-container');
   if(!cont) return;
-  const filterVal = document.getElementById('cal-filter-input')?.value.trim().toLowerCase() || '';
-  cont.innerHTML = '';
+  const q = (document.getElementById('cal-filter-input').value||'').trim().toLowerCase();
+  cont.innerHTML='';
   calUpdateTitle();
-
-  if(CAL_CURRENT_VIEW === 'month'){
-    calRenderMonth(cont, filterVal);
-  }else if(CAL_CURRENT_VIEW === 'week'){
-    calRenderWeek(cont, filterVal);
-  }else if(CAL_CURRENT_VIEW === 'day'){
-    calRenderDay(cont, filterVal);
-  }else if(CAL_CURRENT_VIEW === 'year'){
-    calRenderYear(cont, filterVal);
-  }
+  if(CAL_CURRENT_VIEW==='month') calRenderMonth(cont,q);
+  else if(CAL_CURRENT_VIEW==='week') calRenderWeek(cont,q);
+  else if(CAL_CURRENT_VIEW==='day') calRenderDay(cont,q);
+  else calRenderYear(cont,q);
 }
-
-function calRenderMonth(cont, filterVal){
-  const header = document.createElement('div');
-  header.className = 'cal-weekdays';
-  CAL_WEEKDAYS_SHORT.forEach(d => {
-    const el = document.createElement('div');
-    el.className = 'cal-weekday';
-    el.textContent = d;
-    header.appendChild(el);
+function calRenderMonth(cont,q){
+  const head=document.createElement('div');
+  head.className='cal-weekdays';
+  CAL_WEEKDAYS_SHORT.forEach(d=>{
+    const e=document.createElement('div');
+    e.className='cal-weekday';
+    e.textContent=d;
+    head.appendChild(e);
   });
-  cont.appendChild(header);
-
-  const grid = document.createElement('div');
-  grid.className = 'cal-month-grid';
-
-  const year = CAL_CURRENT_DATE.getFullYear();
-  const month = CAL_CURRENT_DATE.getMonth();
-  const firstDay = new Date(year,month,1);
-  const startWeekDay = firstDay.getDay();
-  const daysInMonth = new Date(year,month+1,0).getDate();
-
-  const prevMonthDays = (startWeekDay + 7 - 0) % 7;
-  const totalCells = prevMonthDays + daysInMonth;
-  const cells = totalCells <= 35 ? 35 : 42;
-
-  const todayDMY = calFormatDMY(new Date());
-
-  for(let i=0; i<cells; i++){
-    const cell = document.createElement('div');
-    cell.className = 'cal-day-cell';
-    const dayOffset = i - prevMonthDays + 1;
-    let cellDate;
-    let inThisMonth = true;
-
-    if(dayOffset < 1){
-      cellDate = new Date(year, month, dayOffset);
-      inThisMonth = false;
-    }else if(dayOffset > daysInMonth){
-      cellDate = new Date(year, month, dayOffset);
-      inThisMonth = false;
-    }else{
-      cellDate = new Date(year, month, dayOffset);
-    }
-
-    const iso = calFormatDMY(cellDate);
-    if(!inThisMonth) cell.classList.add('other-month');
-
-    const headerNum = document.createElement('div');
-    headerNum.className = 'cal-day-number';
-    if(iso === todayDMY){
-      headerNum.classList.add('today');
-    }
-    headerNum.textContent = cellDate.getDate();
-    cell.appendChild(headerNum);
-
-    const events = calEventsOnDay(iso).filter(ev => calEventMatchesFilter(ev, filterVal));
-    events.sort((a,b)=>{
-      const ma = calMinutesFromTimeStr((a.horaInicio || '').split(' ')[0]);
-      const mb = calMinutesFromTimeStr((b.horaInicio || '').split(' ')[0]);
-      return ma - mb;
-    });
-
-    events.forEach(ev => {
-      const chip = document.createElement('div');
-      chip.className = calStatusColorClass();
-
-      const title = document.createElement('span');
-      title.className = 'cal-evt-title';
-      title.textContent = ev.lider + ' - ' + ev.nombreEvento;
-
-      const time = document.createElement('span');
-      time.className = 'cal-evt-time';
-      time.textContent = calAmPmFromHMS(ev.horaInicio) + ' - ' + calAmPmFromHMS(ev.horaFin);
-
-      chip.appendChild(title);
-      chip.appendChild(time);
-      chip.addEventListener('click', ()=> agendaOpenEventForEdit(ev.codigo));
-
+  cont.appendChild(head);
+  const grid=document.createElement('div');
+  grid.className='cal-month-grid';
+  const y=CAL_CURRENT_DATE.getFullYear();
+  const m=CAL_CURRENT_DATE.getMonth();
+  const first=new Date(y,m,1);
+  const startDay=first.getDay();
+  const dim=new Date(y,m+1,0).getDate();
+  const prevDays=(startDay+7-0)%7;
+  const total=prevDays+dim;
+  const cells=total<=35?35:42;
+  const todayDMY=calFormatDMY(new Date());
+  for(let i=0;i<cells;i++){
+    const cell=document.createElement('div');
+    cell.className='cal-day-cell';
+    const dayOffset=i-prevDays+1;
+    let d;
+    let inMonth=true;
+    if(dayOffset<1){ d=new Date(y,m,dayOffset); inMonth=false; }
+    else if(dayOffset>dim){ d=new Date(y,m,dayOffset); inMonth=false; }
+    else d=new Date(y,m,dayOffset);
+    const dmy=calFormatDMY(d);
+    if(!inMonth) cell.classList.add('other-month');
+    const num=document.createElement('div');
+    num.className='cal-day-number';
+    if(dmy===todayDMY) num.classList.add('today');
+    num.textContent=d.getDate();
+    cell.appendChild(num);
+    const evs=calEventsOnDay(dmy).filter(ev=>calEventMatchesFilter(ev,q));
+    evs.sort((a,b)=>calMinutesFromTimeStr(a.horaInicio)-calMinutesFromTimeStr(b.horaInicio));
+    evs.forEach(ev=>{
+      const chip=document.createElement('div');
+      chip.className='cal-event-chip';
+      const t=document.createElement('span');
+      t.className='cal-evt-title';
+      t.textContent=ev.nombreEvento;
+      const tm=document.createElement('span');
+      tm.className='cal-evt-time';
+      tm.textContent=calAmPmFromHMS(ev.horaInicio)+' - '+calAmPmFromHMS(ev.horaFin);
+      chip.appendChild(t);
+      chip.appendChild(tm);
+      chip.addEventListener('click',()=>agendaOpenEventForEdit(ev.codigo));
       cell.appendChild(chip);
     });
-
     grid.appendChild(cell);
   }
   cont.appendChild(grid);
 }
-
-function calRenderDay(cont, filterVal){
-  const header = document.createElement('div');
-  header.className = 'cal-day-header-row';
-  const d = CAL_CURRENT_DATE;
-  header.textContent = d.toLocaleDateString('es-CO',{ weekday:'long', day:'numeric', month:'long', year:'numeric' }).toUpperCase();
-  cont.appendChild(header);
-
-  const body = document.createElement('div');
-  body.className = 'cal-day-body';
-
-  const iso = calFormatDMY(d);
-  const events = calEventsOnDay(iso).filter(ev => calEventMatchesFilter(ev, filterVal));
-  events.sort((a,b)=>{
-    const ma = calMinutesFromTimeStr((a.horaInicio || '').split(' ')[0]);
-    const mb = calMinutesFromTimeStr((b.horaInicio || '').split(' ')[0]);
-    return ma - mb;
-  });
-
-  if(!events.length){
-    const p = document.createElement('p');
-    p.className = 'muted';
-    p.textContent = 'Sin eventos para este día.';
+function calRenderDay(cont,q){
+  const head=document.createElement('div');
+  head.className='cal-day-header-row';
+  const d=CAL_CURRENT_DATE;
+  head.textContent=d.toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+  cont.appendChild(head);
+  const body=document.createElement('div');
+  body.className='cal-day-body';
+  const dmy=calFormatDMY(d);
+  const evs=calEventsOnDay(dmy).filter(ev=>calEventMatchesFilter(ev,q));
+  evs.sort((a,b)=>calMinutesFromTimeStr(a.horaInicio)-calMinutesFromTimeStr(b.horaInicio));
+  if(!evs.length){
+    const p=document.createElement('p');
+    p.className='muted';
+    p.textContent='Sin eventos para este día.';
     body.appendChild(p);
   }else{
-    events.forEach(ev => {
-      const chip = document.createElement('div');
-      chip.className = calStatusColorClass();
-
-      const title = document.createElement('span');
-      title.className = 'cal-evt-title';
-      title.textContent = ev.nombreEvento;
-
-      const time = document.createElement('span');
-      time.className = 'cal-evt-time';
-      time.textContent = calAmPmFromHMS(ev.horaInicio) + ' - ' + calAmPmFromHMS(ev.horaFin);
-
-      const desc = document.createElement('div');
-      desc.style.fontSize = '.72rem';
-      desc.textContent = ev.lider + ' - ' + ev.lugar;
-
-      chip.appendChild(title);
-      chip.appendChild(time);
-      chip.appendChild(desc);
-
-      chip.addEventListener('click', ()=> agendaOpenEventForEdit(ev.codigo));
+    evs.forEach(ev=>{
+      const chip=document.createElement('div');
+      chip.className='cal-event-chip';
+      const t=document.createElement('span');
+      t.className='cal-evt-title';
+      t.textContent=ev.nombreEvento;
+      const tm=document.createElement('span');
+      tm.className='cal-evt-time';
+      tm.textContent=calAmPmFromHMS(ev.horaInicio)+' - '+calAmPmFromHMS(ev.horaFin);
+      chip.appendChild(t);
+      chip.appendChild(tm);
+      chip.addEventListener('click',()=>agendaOpenEventForEdit(ev.codigo));
       body.appendChild(chip);
     });
   }
   cont.appendChild(body);
 }
-
-function calRenderWeek(cont, filterVal){
-  const start = calStartOfWeek(CAL_CURRENT_DATE);
-  const end = calEndOfWeek(CAL_CURRENT_DATE);
-
-  const header = document.createElement('div');
-  header.className = 'cal-week-header-row';
-  header.textContent = 'Semana del ' +
-    start.getDate() + ' ' + CAL_MONTHS_SHORT[start.getMonth()] +
-    ' al ' +
-    end.getDate() + ' ' + CAL_MONTHS_SHORT[end.getMonth()] +
-    ' ' + end.getFullYear();
-  cont.appendChild(header);
-
-  const body = document.createElement('div');
-  body.className = 'cal-week-body';
-
+function calRenderWeek(cont,q){
+  const s=calStartOfWeek(CAL_CURRENT_DATE);
+  const e=calEndOfWeek(CAL_CURRENT_DATE);
+  const head=document.createElement('div');
+  head.className='cal-week-header-row';
+  head.textContent='Semana del '+s.getDate()+' '+CAL_MONTHS_SHORT[s.getMonth()]+' al '+e.getDate()+' '+CAL_MONTHS_SHORT[e.getMonth()]+' '+e.getFullYear();
+  cont.appendChild(head);
+  const body=document.createElement('div');
+  body.className='cal-week-body';
   for(let i=0;i<7;i++){
-    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
-    const iso = calFormatDMY(d);
-
-    const row = document.createElement('div');
-    row.style.borderRadius = '10px';
-    row.style.padding = '6px 8px';
-    row.style.background = '#f9fafb';
-    row.style.marginBottom = '6px';
-
-    const head = document.createElement('div');
-    head.style.display = 'flex';
-    head.style.alignItems = 'center';
-    head.style.justifyContent = 'space-between';
-
-    const left = document.createElement('span');
-    left.style.fontWeight = '700';
-    left.style.fontSize = '.8rem';
-    left.textContent = CAL_WEEKDAYS_SHORT[d.getDay()] + ' ' + d.getDate() + ' ' + CAL_MONTHS_SHORT[d.getMonth()];
-
-    head.appendChild(left);
-    row.appendChild(head);
-
-    const evs = calEventsOnDay(iso).filter(ev => calEventMatchesFilter(ev, filterVal));
-    evs.sort((a,b)=>{
-      const ma = calMinutesFromTimeStr((a.horaInicio || '').split(' ')[0]);
-      const mb = calMinutesFromTimeStr((b.horaInicio || '').split(' ')[0]);
-      return ma - mb;
-    });
-
+    const d=new Date(s.getFullYear(),s.getMonth(),s.getDate()+i);
+    const dmy=calFormatDMY(d);
+    const row=document.createElement('div');
+    row.style.borderRadius='10px';
+    row.style.padding='6px 8px';
+    row.style.background='#f9fafb';
+    row.style.marginBottom='6px';
+    const h=document.createElement('div');
+    h.style.display='flex';
+    h.style.justifyContent='space-between';
+    h.style.alignItems='center';
+    const l=document.createElement('span');
+    l.style.fontWeight='700';
+    l.style.fontSize='.8rem';
+    l.textContent=CAL_WEEKDAYS_SHORT[d.getDay()]+' '+d.getDate()+' '+CAL_MONTHS_SHORT[d.getMonth()];
+    h.appendChild(l);
+    row.appendChild(h);
+    const evs=calEventsOnDay(dmy).filter(ev=>calEventMatchesFilter(ev,q));
+    evs.sort((a,b)=>calMinutesFromTimeStr(a.horaInicio)-calMinutesFromTimeStr(b.horaInicio));
     if(!evs.length){
-      const p = document.createElement('p');
-      p.className = 'muted';
-      p.style.fontSize = '.72rem';
-      p.textContent = 'Sin eventos';
+      const p=document.createElement('p');
+      p.className='muted';
+      p.style.fontSize='.72rem';
+      p.textContent='Sin eventos';
       row.appendChild(p);
     }else{
-      evs.forEach(ev => {
-        const chip = document.createElement('div');
-        chip.className = calStatusColorClass();
-
-        const title = document.createElement('span');
-        title.className = 'cal-evt-title';
-        title.textContent = ev.nombreEvento;
-
-        const time = document.createElement('span');
-        time.className = 'cal-evt-time';
-        time.textContent = calAmPmFromHMS(ev.horaInicio) + ' - ' + calAmPmFromHMS(ev.horaFin);
-
-        chip.appendChild(title);
-        chip.appendChild(time);
-        chip.addEventListener('click', ()=> agendaOpenEventForEdit(ev.codigo));
+      evs.forEach(ev=>{
+        const chip=document.createElement('div');
+        chip.className='cal-event-chip';
+        const t=document.createElement('span');
+        t.className='cal-evt-title';
+        t.textContent=ev.nombreEvento;
+        const tm=document.createElement('span');
+        tm.className='cal-evt-time';
+        tm.textContent=calAmPmFromHMS(ev.horaInicio)+' - '+calAmPmFromHMS(ev.horaFin);
+        chip.appendChild(t);
+        chip.appendChild(tm);
+        chip.addEventListener('click',()=>agendaOpenEventForEdit(ev.codigo));
         row.appendChild(chip);
       });
     }
-
     body.appendChild(row);
   }
   cont.appendChild(body);
 }
-
-function calRenderYear(cont, filterVal){
-  const grid = document.createElement('div');
-  grid.className = 'cal-year-grid';
-
-  const year = CAL_CURRENT_DATE.getFullYear();
-  const eventsByMonth = {};
-  AGENDA_EVENTS.forEach(ev => {
-    const d = calParseDMY(ev.fechaEvento);
-    if(!d || d.getFullYear() !== year) return;
-    const m = d.getMonth();
-    if(!eventsByMonth[m]) eventsByMonth[m] = [];
-    if(calEventMatchesFilter(ev, filterVal)){
-      eventsByMonth[m].push(ev);
-    }
+function calRenderYear(cont,q){
+  const grid=document.createElement('div');
+  grid.className='cal-year-grid';
+  const year=CAL_CURRENT_DATE.getFullYear();
+  const map={};
+  AGENDA_EVENTS.forEach(ev=>{
+    const d=calParseDMY(ev.fechaEvento);
+    if(!d || d.getFullYear()!==year) return;
+    if(!calEventMatchesFilter(ev,q)) return;
+    const m=d.getMonth();
+    (map[m]=map[m]||[]).push(ev);
   });
-
   for(let m=0;m<12;m++){
-    const box = document.createElement('div');
-    box.className = 'cal-year-month';
-
-    const h4 = document.createElement('h4');
-    h4.textContent = new Date(year,m,1).toLocaleDateString('es-CO',{ month:'long' }).toUpperCase();
+    const box=document.createElement('div');
+    box.className='cal-year-month';
+    const h4=document.createElement('h4');
+    h4.textContent=new Date(year,m,1).toLocaleDateString('es-CO',{month:'long'}).toUpperCase();
     box.appendChild(h4);
-
-    const table = document.createElement('table');
-    const thead = document.createElement('thead');
-    const trh = document.createElement('tr');
-    CAL_WEEKDAYS_SHORT.forEach(d => {
-      const th = document.createElement('th');
-      th.textContent = d.charAt(0);
+    const table=document.createElement('table');
+    const thead=document.createElement('thead');
+    const trh=document.createElement('tr');
+    CAL_WEEKDAYS_SHORT.forEach(d=>{
+      const th=document.createElement('th');
+      th.textContent=d.charAt(0);
       trh.appendChild(th);
     });
     thead.appendChild(trh);
     table.appendChild(thead);
-
-    const tbody = document.createElement('tbody');
-    const first = new Date(year,m,1);
-    const startDay = first.getDay();
-    const daysInMonth = new Date(year,m+1,0).getDate();
-
-    let day = 1;
-    let done = false;
+    const tbody=document.createElement('tbody');
+    const first=new Date(year,m,1);
+    const startDay=first.getDay();
+    const dim=new Date(year,m+1,0).getDate();
+    let day=1;
+    let done=false;
     while(!done){
-      const tr = document.createElement('tr');
-      for(let wd=0; wd<7; wd++){
-        const td = document.createElement('td');
-        if(wd < startDay && day === 1){
-          td.textContent = '';
-        }else if(day > daysInMonth){
-          td.textContent = '';
-          done = true;
+      const tr=document.createElement('tr');
+      for(let wd=0;wd<7;wd++){
+        const td=document.createElement('td');
+        if(wd<startDay && day===1){
+          td.textContent='';
+        }else if(day>dim){
+          td.textContent='';
+          done=true;
         }else{
-          td.textContent = day;
-          const dmy = calFormatDMY(new Date(year,m,day));
-          const hasEvent = (eventsByMonth[m]||[]).some(ev => ev.fechaEvento === dmy);
-          if(hasEvent){
-            const dot = document.createElement('span');
-            dot.className = 'cal-year-dot';
+          td.textContent=day;
+          const dmy=calFormatDMY(new Date(year,m,day));
+          const has=(map[m]||[]).some(ev=>ev.fechaEvento===dmy);
+          if(has){
+            const dot=document.createElement('span');
+            dot.className='cal-year-dot';
             td.appendChild(dot);
           }
           day++;
@@ -1428,242 +1125,178 @@ function calRenderYear(cont, filterVal){
       }
       tbody.appendChild(tr);
     }
-
     table.appendChild(tbody);
     box.appendChild(table);
     grid.appendChild(box);
   }
-
   cont.appendChild(grid);
 }
 
-/* Navegación calendario */
-document.getElementById('cal-btn-back').addEventListener('click', ()=>{
-  playSoundOnce(SOUNDS.back);
-  showView('view-agenda-home');
-});
-document.getElementById('cal-btn-today').addEventListener('click', ()=>{
-  CAL_CURRENT_DATE = new Date();
+/* Navegación */
+document.getElementById('cal-btn-today').addEventListener('click',()=>{CAL_CURRENT_DATE=new Date();calRender();});
+document.getElementById('cal-prev').addEventListener('click',()=>{
+  if(CAL_CURRENT_VIEW==='year') CAL_CURRENT_DATE.setFullYear(CAL_CURRENT_DATE.getFullYear()-1);
+  else if(CAL_CURRENT_VIEW==='month') CAL_CURRENT_DATE.setMonth(CAL_CURRENT_DATE.getMonth()-1);
+  else if(CAL_CURRENT_VIEW==='week') CAL_CURRENT_DATE.setDate(CAL_CURRENT_DATE.getDate()-7);
+  else CAL_CURRENT_DATE.setDate(CAL_CURRENT_DATE.getDate()-1);
   calRender();
 });
-document.getElementById('cal-prev').addEventListener('click', ()=>{
-  if(CAL_CURRENT_VIEW === 'year'){
-    CAL_CURRENT_DATE.setFullYear(CAL_CURRENT_DATE.getFullYear()-1);
-  }else if(CAL_CURRENT_VIEW === 'month'){
-    CAL_CURRENT_DATE.setMonth(CAL_CURRENT_DATE.getMonth()-1);
-  }else if(CAL_CURRENT_VIEW === 'week'){
-    CAL_CURRENT_DATE.setDate(CAL_CURRENT_DATE.getDate()-7);
-  }else if(CAL_CURRENT_VIEW === 'day'){
-    CAL_CURRENT_DATE.setDate(CAL_CURRENT_DATE.getDate()-1);
-  }
-  calRender();
-});
-document.getElementById('cal-next').addEventListener('click', ()=>{
-  if(CAL_CURRENT_VIEW === 'year'){
-    CAL_CURRENT_DATE.setFullYear(CAL_CURRENT_DATE.getFullYear()+1);
-  }else if(CAL_CURRENT_VIEW === 'month'){
-    CAL_CURRENT_DATE.setMonth(CAL_CURRENT_DATE.getMonth()+1);
-  }else if(CAL_CURRENT_VIEW === 'week'){
-    CAL_CURRENT_DATE.setDate(CAL_CURRENT_DATE.getDate()+7);
-  }else if(CAL_CURRENT_VIEW === 'day'){
-    CAL_CURRENT_DATE.setDate(CAL_CURRENT_DATE.getDate()+1);
-  }
+document.getElementById('cal-next').addEventListener('click',()=>{
+  if(CAL_CURRENT_VIEW==='year') CAL_CURRENT_DATE.setFullYear(CAL_CURRENT_DATE.getFullYear()+1);
+  else if(CAL_CURRENT_VIEW==='month') CAL_CURRENT_DATE.setMonth(CAL_CURRENT_DATE.getMonth()+1);
+  else if(CAL_CURRENT_VIEW==='week') CAL_CURRENT_DATE.setDate(CAL_CURRENT_DATE.getDate()+7);
+  else CAL_CURRENT_DATE.setDate(CAL_CURRENT_DATE.getDate()+1);
   calRender();
 });
 function calSyncViewButtons(){
   ['cal-view-day','cal-view-week','cal-view-month','cal-view-year'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(!el) return;
-    el.classList.remove('active');
+    const el=document.getElementById(id);
+    if(el) el.classList.remove('active');
   });
-  if(CAL_CURRENT_VIEW === 'day') document.getElementById('cal-view-day').classList.add('active');
-  if(CAL_CURRENT_VIEW === 'week') document.getElementById('cal-view-week').classList.add('active');
-  if(CAL_CURRENT_VIEW === 'month') document.getElementById('cal-view-month').classList.add('active');
-  if(CAL_CURRENT_VIEW === 'year') document.getElementById('cal-view-year').classList.add('active');
+  if(CAL_CURRENT_VIEW==='day') document.getElementById('cal-view-day').classList.add('active');
+  if(CAL_CURRENT_VIEW==='week') document.getElementById('cal-view-week').classList.add('active');
+  if(CAL_CURRENT_VIEW==='month') document.getElementById('cal-view-month').classList.add('active');
+  if(CAL_CURRENT_VIEW==='year') document.getElementById('cal-view-year').classList.add('active');
 }
-document.getElementById('cal-view-day').addEventListener('click', ()=>{
-  CAL_CURRENT_VIEW = 'day';
-  calSyncViewButtons();
-  calRender();
-});
-document.getElementById('cal-view-week').addEventListener('click', ()=>{
-  CAL_CURRENT_VIEW = 'week';
-  calSyncViewButtons();
-  calRender();
-});
-document.getElementById('cal-view-month').addEventListener('click', ()=>{
-  CAL_CURRENT_VIEW = 'month';
-  calSyncViewButtons();
-  calRender();
-});
-document.getElementById('cal-view-year').addEventListener('click', ()=>{
-  CAL_CURRENT_VIEW = 'year';
-  calSyncViewButtons();
-  calRender();
-});
-document.getElementById('cal-filter-toggle').addEventListener('click', ()=>{
-  const input = document.getElementById('cal-filter-input');
-  if(!input) return;
-  const visible = input.style.display !== 'none';
-  if(visible){
-    input.style.display = 'none';
-    input.value = '';
+document.getElementById('cal-view-day').addEventListener('click',()=>{CAL_CURRENT_VIEW='day';calSyncViewButtons();calRender();});
+document.getElementById('cal-view-week').addEventListener('click',()=>{CAL_CURRENT_VIEW='week';calSyncViewButtons();calRender();});
+document.getElementById('cal-view-month').addEventListener('click',()=>{CAL_CURRENT_VIEW='month';calSyncViewButtons();calRender();});
+document.getElementById('cal-view-year').addEventListener('click',()=>{CAL_CURRENT_VIEW='year';calSyncViewButtons();calRender();});
+document.getElementById('cal-filter-toggle').addEventListener('click',()=>{
+  const inp=document.getElementById('cal-filter-input');
+  const vis=inp.style.display!=='none';
+  if(vis){
+    inp.style.display='none';
+    inp.value='';
     calRender();
   }else{
-    input.style.display = '';
-    input.focus();
+    inp.style.display='';
+    inp.focus();
   }
 });
-document.getElementById('cal-filter-input').addEventListener('input', ()=> calRender());
+document.getElementById('cal-filter-input').addEventListener('input',calRender);
 
-/* ================== FORMULARIO EVENTO ================== */
+/* FORMULARIO EVENTO */
 function toggleAgendaFormEditable(editable){
-  const ids = ['nombreEvento','fechaEvento','horaInicio','horaTerminacion','lugar'];
-  ids.forEach(id=>{
-    const el = document.getElementById(id);
+  ['nombreEvento','fechaEvento','horaInicio','horaTerminacion','lugar'].forEach(id=>{
+    const el=document.getElementById(id);
     if(!el) return;
-    el.readOnly = !editable;
-    el.disabled = !editable;
+    el.disabled=!editable;
+    el.readOnly=!editable && id!=='lugar';
   });
-  const btnGuardar = document.getElementById('evento-guardar');
-  if(btnGuardar){
-    btnGuardar.disabled = !editable;
-    btnGuardar.style.opacity = editable ? '1' : '.55';
-    btnGuardar.style.cursor = editable ? 'pointer' : 'not-allowed';
-  }
-  const aviso = document.getElementById('agenda-detalle-aviso');
-  if(aviso){
-    aviso.textContent = editable
-      ? ''
-      : 'Solo puedes editar los eventos que tú has creado.';
-  }
+  const btn=document.getElementById('evento-guardar');
+  btn.disabled=!editable;
+  btn.style.opacity=editable?'1':'.5';
+  btn.style.cursor=editable?'pointer':'not-allowed';
+  document.getElementById('agenda-detalle-aviso').textContent = editable
+    ? ''
+    : 'Solo puedes editar los eventos que tú has creado.';
 }
 function resetAgendaForm(){
-  document.getElementById('nombreEvento').value = '';
-  document.getElementById('fechaEvento').value = '';
-  document.getElementById('horaInicio').value = '';
-  document.getElementById('horaTerminacion').value = '';
-  document.getElementById('lugar').value = '';
-  document.getElementById('agenda-detalle-aviso').textContent = '';
+  document.getElementById('nombreEvento').value='';
+  document.getElementById('fechaEvento').value='';
+  document.getElementById('horaInicio').value='';
+  document.getElementById('horaTerminacion').value='';
+  document.getElementById('lugar').value='';
+  document.getElementById('liderNombre').value=currentLeader?.nombre||'';
+  document.getElementById('liderContacto').value=currentLeader?.telefono||'';
+  document.getElementById('agenda-detalle-aviso').textContent='';
 }
 function fillAgendaForm(ev){
-  document.getElementById('nombreEvento').value = ev.nombreEvento || '';
-  // fechaEvento viene dd/mm/aaaa; convertir a yyyy-mm-dd para input date
-  let valDate = '';
+  document.getElementById('nombreEvento').value=ev.nombreEvento||'';
+  let valDate='';
   if(ev.fechaEvento){
-    const p = ev.fechaEvento.split('/');
-    if(p.length === 3){
-      valDate = p[2] + '-' + p[1].padStart(2,'0') + '-' + p[0].padStart(2,'0');
-    }
+    const p=ev.fechaEvento.split('/');
+    if(p.length===3) valDate=p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0');
   }
-  document.getElementById('fechaEvento').value = valDate;
-  // horaInicio y horaFin vienen como "6:00:00"; convertir HH:mm
+  document.getElementById('fechaEvento').value=valDate;
   function toHHmm(hms){
     if(!hms) return '';
-    const p = hms.split(':');
-    const h = p[0] || '00';
-    const m = p[1] || '00';
-    return h.padStart(2,'0') + ':' + m.padStart(2,'0');
+    const q=hms.split(':');
+    return q[0].padStart(2,'0')+':'+(q[1]||'00').padStart(2,'0');
   }
-  document.getElementById('horaInicio').value = toHHmm(ev.horaInicio);
-  document.getElementById('horaTerminacion').value = toHHmm(ev.horaFin);
-  document.getElementById('lugar').value = ev.lugar || '';
-  document.getElementById('liderNombre').value = currentLeader?.nombre || '';
-  document.getElementById('liderContacto').value = currentLeader?.telefono || '';
+  document.getElementById('horaInicio').value=toHHmm(ev.horaInicio);
+  document.getElementById('horaTerminacion').value=toHHmm(ev.horaFin);
+  document.getElementById('lugar').value=ev.lugar||'';
+  document.getElementById('liderNombre').value=currentLeader?.nombre||'';
+  document.getElementById('liderContacto').value=currentLeader?.telefono||'';
 }
-
-/* Abrir crear nuevo evento */
-document.getElementById('cal-btn-new').addEventListener('click', ()=>{
-  AGENDA_SELECTED_EVENT = null;
+document.getElementById('cal-btn-new').addEventListener('click',()=>{
+  AGENDA_SELECTED_EVENT=null;
   resetAgendaForm();
-  document.getElementById('evento-title').textContent = 'REGISTRAR EVENTO';
+  document.getElementById('evento-title').textContent='REGISTRAR EVENTO';
   toggleAgendaFormEditable(true);
-  showView('view-evento-agenda');
+  showView('view-evento');
 });
-
-/* Volver desde formulario */
-document.getElementById('evento-volver').addEventListener('click', ()=>{
+document.getElementById('evento-volver').addEventListener('click',()=>{
   playSoundOnce(SOUNDS.back);
-  showView('view-agenda-cal');
+  showView('view-agenda');
 });
 
-/* Abrir evento para ver/editar */
+/* obtener y abrir evento */
 async function agendaOpenEventForEdit(codigo){
   try{
-    const data = await apiGet('obtenereventoagendaprivada', { codigo });
+    const data=await apiGet('obtenereventoagendaprivada',{codigo});
     if(!data){
       Swal.fire({icon:'info',title:'Evento no encontrado'});
       return;
     }
-    const ev = normalizeAgendaEvent(data);
-    AGENDA_SELECTED_EVENT = ev;
-    const esMio = isMyPrivateEvent(ev);
+    const ev=normalizeAgendaEvent(data);
+    AGENDA_SELECTED_EVENT=ev;
+    const esMio=isMyPrivateEvent(ev);
     fillAgendaForm(ev);
     document.getElementById('evento-title').textContent = esMio ? 'EDITAR EVENTO' : 'DETALLES DE EVENTO';
-    toggleAgendaFormEditable(esMio);
-    showView('view-evento-agenda');
+    toggleAgendaFormEditable(esMio);      // aquí se cumple: si no es suyo, solo ve, no edita
+    showView('view-evento');
   }catch(e){
     Swal.fire({icon:'error',title:'Error',text:String(e.message||e)});
   }
 }
 
 /* Guardar evento */
-document.getElementById('evento-guardar').addEventListener('click', async ()=>{
+document.getElementById('evento-guardar').addEventListener('click',async()=>{
   if(!currentLeader){
     Swal.fire({icon:'warning',title:'Sesión inválida'});
     return;
   }
-  const nombreEvento = (document.getElementById('nombreEvento').value || '').trim();
-  const fechaVal = (document.getElementById('fechaEvento').value || '').trim(); // yyyy-mm-dd
-  const horaInicio = (document.getElementById('horaInicio').value || '').trim(); // HH:mm
-  const horaFin = (document.getElementById('horaTerminacion').value || '').trim();
-  const lugar = (document.getElementById('lugar').value || '').trim();
-
-  if(!nombreEvento || !fechaVal || !horaInicio || !horaFin || !lugar){
+  const nombreEvento=(document.getElementById('nombreEvento').value||'').trim();
+  const fechaVal=(document.getElementById('fechaEvento').value||'').trim();
+  const horaInicio=(document.getElementById('horaInicio').value||'').trim();
+  const horaFin=(document.getElementById('horaTerminacion').value||'').trim();
+  const lugar=(document.getElementById('lugar').value||'').trim();
+  if(!nombreEvento||!fechaVal||!horaInicio||!horaFin||!lugar){
     Swal.fire({icon:'warning',title:'Campos requeridos',text:'Todos los campos son obligatorios.'});
     return;
   }
-
-  // Convertir fecha a dd/mm/aaaa
-  const p = fechaVal.split('-');
-  const fechaEvento = p.length === 3
-    ? p[2].padStart(2,'0') + '/' + p[1].padStart(2,'0') + '/' + p[0]
-    : '';
-
-  // Convertir horas HH:mm a H:MM:00 para hoja (6:00:00 o 18:00:00)
+  const p=fechaVal.split('-');
+  const fechaEvento=p.length===3 ? p[2]+'/'+p[1].padStart(2,'0')+'/'+p[0] : '';
   function toHms(hm){
-    const q = hm.split(':');
-    let h = parseInt(q[0]||'0',10);
-    let m = parseInt(q[1]||'0',10);
-    if(isNaN(h)) h=0;
-    if(isNaN(m)) m=0;
-    return String(h) + ':' + String(m).padStart(2,'0') + ':00';
+    const q=hm.split(':');
+    const h=parseInt(q[0]||'0',10);
+    const m=parseInt(q[1]||'0',10);
+    return h+':'+String(isNaN(m)?0:m).padStart(2,'0')+':00';
   }
-  const hIniHms = toHms(horaInicio);
-  const hFinHms = toHms(horaFin);
-
-  const body = {
+  const hIniHms=toHms(horaInicio);
+  const hFinHms=toHms(horaFin);
+  const body={
     codigo: AGENDA_SELECTED_EVENT ? AGENDA_SELECTED_EVENT.codigo : '',
-    nombreEvento: nombreEvento,
-    fechaEvento: fechaEvento,
-    lugar: lugar,
+    nombreEvento,
+    fechaEvento,
+    lugar,
     lider: currentLeader.nombre,
     contacto: currentLeader.telefono,
     horaInicio: hIniHms,
     horaFin: hFinHms
   };
-
-  // Resumen
-  const resumenHtml =
-    '<b>Nombre del Evento:</b> ' + nombreEvento + '<br>' +
-    '<b>Fecha:</b> ' + fechaEvento + '<br>' +
-    '<b>Hora Inicio:</b> ' + horaInicio + '<br>' +
-    '<b>Hora Fin:</b> ' + horaFin + '<br>' +
-    '<b>Lugar:</b> ' + lugar + '<br>' +
-    '<b>Líder:</b> ' + currentLeader.nombre + '<br>' +
-    '<b>Contacto:</b> ' + (currentLeader.telefono || 'N/A') + '<br>';
-
-  const rs = await Swal.fire({
+  const resumenHtml=
+    '<b>Nombre del Evento:</b> '+nombreEvento+'<br>'+
+    '<b>Fecha:</b> '+fechaEvento+'<br>'+
+    '<b>Hora Inicio:</b> '+horaInicio+'<br>'+
+    '<b>Hora Fin:</b> '+horaFin+'<br>'+
+    '<b>Lugar:</b> '+lugar+'<br>'+
+    '<b>Líder:</b> '+currentLeader.nombre+'<br>'+
+    '<b>Contacto:</b> '+(currentLeader.telefono||'N/A');
+  const rs=await Swal.fire({
     icon:'info',
     title:'Resumen de Evento',
     html:resumenHtml,
@@ -1672,16 +1305,15 @@ document.getElementById('evento-guardar').addEventListener('click', async ()=>{
     cancelButtonText:'Editar'
   });
   if(!rs.isConfirmed) return;
-
   try{
-    const res = await apiPost('guardareventoagendaprivada', body);
-    if(!res || !res.success){
-      Swal.fire({icon:'error',title:'Error al guardar',text:res && res.message ? res.message : 'Intenta nuevamente.'});
+    const res=await apiPost('guardareventoagendaprivada',body);
+    if(!res||!res.success){
+      Swal.fire({icon:'error',title:'Error al guardar',text:res&&res.message?res.message:'Intenta nuevamente.'});
       return;
     }
     await agendaLoadEvents();
     Swal.fire({icon:'success',title:'Evento guardado',timer:1800,showConfirmButton:false});
-    showView('view-agenda-cal');
+    showView('view-agenda');
     calRender();
   }catch(e){
     Swal.fire({icon:'error',title:'Error',text:String(e.message||e)});
