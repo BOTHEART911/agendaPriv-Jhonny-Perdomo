@@ -364,9 +364,38 @@
       flex-wrap:wrap;
     }
 
+        .join-wrapper{
+      margin-top:6px;
+      display:flex;
+      justify-content:center;
+    }
+    .join-btn{
+      padding:6px 16px;
+      border-radius:999px;
+      border:2px solid #16a34a;
+      background:#16a34a;
+      color:#fff;
+      font-size:.8rem;
+      font-weight:800;
+      cursor:pointer;
+      box-shadow:0 0 12px rgba(22,163,74,.55);
+      animation:joinPulse 1.4s infinite;
+    }
+    .join-btn:hover{
+      background:#15803d;
+      border-color:#15803d;
+      box-shadow:0 0 16px rgba(21,128,61,.7);
+    }
+    @keyframes joinPulse{
+      0%{ transform:scale(1); box-shadow:0 0 0 0 rgba(22,163,74,.6); }
+      70%{ transform:scale(1.06); box-shadow:0 0 0 10px rgba(22,163,74,0); }
+      100%{ transform:scale(1); box-shadow:0 0 0 0 rgba(22,163,74,0); }
+    }
+
     @media (max-width: 700px){
       .btn-row{ flex-direction:column; }
     }
+
   </style>
 </head>
 <body>
@@ -420,9 +449,19 @@
         <button class="chip" id="btn-logout">Cerrar Sesión</button>
       </div>
 
-      <div class="narrow" style="margin-bottom:12px;">
+            <div class="narrow" style="margin-bottom:12px;">
         <p class="center muted" style="margin:4px 0 2px;"><b>Líder:</b> <span id="u-nombre"></span></p>
         <p class="center muted" style="margin:2px 0;"><b>Contacto:</b> <span id="u-tel"></span></p>
+        <div class="join-wrapper">
+          <a
+            href="https://calendar.google.com/calendar/u/0?cid=MWRhNDRhZDRiNzYyZDAxMzdkYWUxOTYzOTAzNzEyNDg4OWY0ZmNhNTRlNWQ0ZDViZTIxNTYwZWNjZTA4OWRkNUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="join-btn"
+          >
+            Únete
+          </a>
+        </div>
       </div>
 
       <div class="cal-wrapper">
@@ -1301,7 +1340,7 @@
     showView('view-agenda');
   });
 
-  function calResetEventoForm(){
+    function calResetEventoForm(){
     document.getElementById('evento-codigo').value = '';
     document.getElementById('nombreEvento').value = '';
     document.getElementById('fechaEvento').value = '';
@@ -1313,6 +1352,16 @@
       const sel = document.getElementById('lugarEvento');
       if(sel) sel.value = '';
     }
+
+    const btnGuardar = document.getElementById('evento-guardar');
+    if(btnGuardar) btnGuardar.style.display = '';
+    const camposIds = ['nombreEvento','fechaEvento','horaInicio','horaTerminacion','lugarEvento','liderNombre','contacto'];
+    camposIds.forEach(id=>{
+      const el = document.getElementById(id);
+      if(el){
+        el.disabled = false;
+      }
+    });
   }
 
   function ensureDMY(v){
@@ -1345,7 +1394,7 @@
     document.getElementById('contacto').value = ev.contacto || '';
   }
 
-  async function calOpenEventForEdit(codigo){
+    async function calOpenEventForEdit(codigo){
     try{
       const data = await apiGet('getEventoAgendaPrivada', { codigo });
       if(!data){
@@ -1360,12 +1409,33 @@
       const leaderName = (currentLeader.nombre || '').trim().toUpperCase();
       const leaderEvent = (ev.lider || '').trim().toUpperCase();
       const canEdit = leaderName === leaderEvent;
-      if(!canEdit){
-        Swal.fire({icon:'info',title:'No puedes editar este evento',text:'Solo el líder que lo creó puede editarlo.'});
-        return;
-      }
+
       calFillEventoForm(ev);
-      document.getElementById('evento-title').textContent = 'EDITAR EVENTO';
+
+      const tituloEl = document.getElementById('evento-title');
+      const btnGuardar = document.getElementById('evento-guardar');
+      const camposIds = ['nombreEvento','fechaEvento','horaInicio','horaTerminacion','lugarEvento','liderNombre','contacto'];
+
+      if(canEdit){
+        if(tituloEl) tituloEl.textContent = 'EDITAR EVENTO';
+        if(btnGuardar) btnGuardar.style.display = '';
+        camposIds.forEach(id=>{
+          const el = document.getElementById(id);
+          if(el){
+            el.disabled = false;
+          }
+        });
+      }else{
+        if(tituloEl) tituloEl.textContent = 'VER EVENTO';
+        if(btnGuardar) btnGuardar.style.display = 'none';
+        camposIds.forEach(id=>{
+          const el = document.getElementById(id);
+          if(el){
+            el.disabled = true;
+          }
+        });
+      }
+
       showView('view-evento');
     }catch(e){
       Swal.fire({icon:'error',title:'Error',text:String(e.message||e)});
