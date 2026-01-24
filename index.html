@@ -535,6 +535,9 @@
         <label for="contacto">Contacto</label>
         <input id="contacto" type="text" readonly>
 
+        <label for="bitacora">Bitácora</label>
+       <textarea id="bitacora" rows="3" placeholder="Opcional"></textarea>
+
         <input id="evento-codigo" type="hidden">
       </div>
 
@@ -1344,6 +1347,7 @@
     document.getElementById('evento-codigo').value = '';
     document.getElementById('nombreEvento').value = '';
     document.getElementById('fechaEvento').value = '';
+    document.getElementById('bitacora').value = '';
     document.getElementById('horaInicio').value = '';
     document.getElementById('horaTerminacion').value = '';
     if(choicesLugar){
@@ -1409,6 +1413,15 @@
       const leaderName = (currentLeader.nombre || '').trim().toUpperCase();
       const leaderEvent = (ev.lider || '').trim().toUpperCase();
       const canEdit = leaderName === leaderEvent;
+
+            if(!canEdit){
+        Swal.fire({
+          icon:'info',
+          title:'NO PUEDES EDITAR ESTE EVENTO',
+          text:'Crea uno propio'
+        });
+        return;
+      }
 
       calFillEventoForm(ev);
 
@@ -1512,6 +1525,7 @@
     const horaInicio = document.getElementById('horaInicio').value.trim();
     const horaTerminacion = document.getElementById('horaTerminacion').value.trim();
     const selLugar = document.getElementById('lugarEvento');
+    const bitacora = document.getElementById('bitacora').value.trim();
     const lugarEvento = selLugar ? selLugar.value : '';
     const lider = currentLeader.nombre || '';
     const contacto = currentLeader.telefono || '';
@@ -1528,7 +1542,8 @@
       '<b>Hora Terminación:</b> ' + horaTerminacion + '<br>' +
       '<b>Lugar:</b> ' + lugarEvento + '<br>' +
       '<b>Líder:</b> ' + lider + '<br>' +
-      '<b>Contacto:</b> ' + contacto + '<br><br>' +
+      '<b>Contacto:</b> ' + contacto + '<br>' +
+      '<b>Bitácora:</b> ' + (bitacora ? bitacora : '-') + '<br><br>' +
       '<img class="brand" src="https://res.cloudinary.com/dqqeavica/image/upload/v1753538919/BANNER_JHONNY_e0yw7m.png" alt="">';
 
     const rs = await Swal.fire({
@@ -1552,7 +1567,8 @@
       horaTerminacion,
       lugarEvento,
       lider,
-      contacto
+      contacto,
+      bitacora
     };
 
     try{
